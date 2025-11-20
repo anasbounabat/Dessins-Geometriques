@@ -1,0 +1,118 @@
+
+//Anas Bounabat
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rosace Néon Complexe</title>
+    <style>
+        /* --- SECTION CSS : LE STYLE --- */
+        body {
+            margin: 0;
+            overflow: hidden; /* Empêche les barres de défilement */
+            background-color: #111; /* Fond global très sombre */
+            display: flex;
+            justify-content: center; /* Centre horizontalement */
+            align-items: center;     /* Centre verticalement */
+            height: 100vh;           /* Pleine hauteur d'écran */
+        }
+
+        canvas {
+            /* Dégradé radial subtil pour donner de la profondeur derrière la rosace */
+            background: radial-gradient(circle at center, #222 0%, #080808 100%);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); /* Ombre portée autour du cadre */
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="neonCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('neonCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height, cx, cy;
+
+        // Fonction pour adapter la taille du canvas à la fenêtre (Responsive)
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            // On recalcule le centre
+            cx = width / 2;
+            cy = height / 2;
+            // On redessine tout
+            drawFinalRosace();
+        }
+
+        // On écoute le redimensionnement de la fenêtre
+        window.addEventListener('resize', resize);
+
+        // --- CŒUR DU PROGRAMME : DESSINER LA ROSACE ---
+        function drawFinalRosace() {
+            // 1. Nettoyage de la toile précédente
+            ctx.clearRect(0, 0, width, height);
+            
+            ctx.save();
+            ctx.translate(cx, cy); // On place le "crayon" au centre de l'écran
+
+            // 2. Paramètres Mathématiques (Fixés pour imiter ton image)
+            // R = Grand cercle, r = Petit cercle mobile, O = Décalage du point
+            const R = 210; 
+            const r = 62;  
+            const O = 130; 
+            
+            // 3. Configuration du style "Néon"
+            ctx.lineWidth = 1.5; // Trait fin pour la précision
+            
+            // L'effet de lueur (Glow)
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = "rgba(255, 0, 255, 0.7)"; 
+            
+            // Mode de fusion "lighter" : Additionne la lumière quand les traits se croisent
+            // C'est ce qui crée le blanc éblouissant au centre
+            ctx.globalCompositeOperation = 'lighter';
+
+            ctx.beginPath();
+            
+            // 4. La Boucle de Calcul (Hypotrochoïde)
+            // On fait énormément de tours (400 * Pi) pour que la forme soit très dense
+            let resolution = 0.02; 
+            
+            for (let theta = 0; theta < 400 * Math.PI; theta += resolution) {
+                
+                // Formules trigonométriques
+                let x = (R - r) * Math.cos(theta) + O * Math.cos(((R - r) / r) * theta);
+                let y = (R - r) * Math.sin(theta) - O * Math.sin(((R - r) / r) * theta);
+
+                if (theta === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+
+            // 5. Application des Couleurs (Dégradé)
+            // On crée un dégradé diagonal pour matcher l'image (Cyan -> Magenta -> Orange)
+            let gradient = ctx.createLinearGradient(-R*1.5, -R*1.5, R*1.5, R*1.5);
+            gradient.addColorStop(0, '#00ffff');   // Cyan
+            gradient.addColorStop(0.4, '#ff00ff'); // Magenta
+            gradient.addColorStop(0.8, '#ff3300'); // Orange
+            gradient.addColorStop(1, '#00ffff');   // Retour au Cyan
+
+            ctx.strokeStyle = gradient;
+            ctx.stroke(); // On trace le tout !
+
+            ctx.restore();
+        }
+
+        // Lancement initial au chargement de la page
+        resize();
+    </script>
+</body>
+</html>

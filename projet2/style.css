@@ -13,6 +13,7 @@ canvas {
     /* Fond dégradé subtil */
     background: radial-gradient(circle at center, #222 0%, #080808 100%);
     box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    display: block;
 }
 
 /* Positionnement des boutons en haut à gauche */
@@ -27,15 +28,21 @@ canvas {
 
 /* Style des boutons adapté au thème bleu */
 button {
-    background: rgba(0, 150, 255, 0.2);
-    border: 1px solid rgba(0, 150, 255, 0.4);
-    color: white;
-    padding: 8px 16px;
+    background: rgba(0, 150, 255, 0.1);
+    border: 1px solid rgba(0, 150, 255, 0.5);
+    color: #0096FF;
+    padding: 10px 20px;
     cursor: pointer;
     border-radius: 4px;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 12px;
+    backdrop-filter: blur(2px);
 }
 
 button:hover {
-    background: rgba(0, 150, 255, 0.4);
+    background: rgba(0, 150, 255, 0.3);
+    color: white;
+    box-shadow: 0 0 15px rgba(0, 150, 255, 0.4);
 }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jan. 21 (credit: Piero)</title>
+    <title>Jan. 21 (credit: Darien Brito)</title>
     <style>
         body,
         html {
@@ -13,7 +13,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #000;
+            background: #222;
             color: #fff;
             font-family: sans-serif;
         }
@@ -27,7 +27,7 @@
         }
 
         canvas {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
         .info {
@@ -74,9 +74,9 @@
 <body>
     <a href="index.html" class="back-link">Back to Index</a>
     <div class="info">
-        <h1>Jan. 21 (credit: Piero)</h1>
-        <p>Bauhaus Poster. Minimalist geometry.</p>
-        <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Click to regenerate.</p>
+        <h1>Jan. 21 (credit: Darien Brito)</h1>
+        <p>Collision detection. Real-time elastic collisions.</p>
+        <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Drag to interact.</p>
     </div>
     <div id="canvas-container">
         <canvas id="canvas"></canvas>
@@ -86,95 +86,142 @@
         const ctx = canvas.getContext('2d');
 
         let width, height;
-        const colors = ['#E4002B', '#151F6D', '#F9D809', '#000000', '#F0F0F0']; // Red, Blue, Yellow, Black, White
+        let balls = [];
+        const numBalls = 50;
+
+        class Ball {
+            constructor(x, y, r) {
+                this.x = x;
+                this.y = y;
+                this.r = r;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = (Math.random() - 0.5) * 4;
+                this.mass = r;
+                this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wall collision
+                if (this.x - this.r < 0) { this.x = this.r; this.vx *= -1; }
+                if (this.x + this.r > width) { this.x = width - this.r; this.vx *= -1; }
+                if (this.y - this.r < 0) { this.y = this.r; this.vy *= -1; }
+                if (this.y + this.r > height) { this.y = height - this.r; this.vy *= -1; }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
 
         function resize() {
             width = window.innerWidth;
             height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
-            drawPoster();
+            initBalls();
+        }
+
+        function initBalls() {
+            balls = [];
+            for (let i = 0; i < numBalls; i++) {
+                const r = 10 + Math.random() * 20;
+                const x = r + Math.random() * (width - 2 * r);
+                const y = r + Math.random() * (height - 2 * r);
+                balls.push(new Ball(x, y, r));
+            }
+        }
+
+        // Elastic collision
+        function resolveCollision(b1, b2) {
+            const dx = b2.x - b1.x;
+            const dy = b2.y - b1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < b1.r + b2.r) {
+                // Correct overlap
+                const overlap = (b1.r + b2.r - dist) / 2;
+                const nx = dx / dist; // Normal X
+                const ny = dy / dist; // Normal Y
+
+                b1.x -= nx * overlap;
+                b1.y -= ny * overlap;
+                b2.x += nx * overlap;
+                b2.y += ny * overlap;
+
+                // Velocity resolving
+                // Tangent vector
+                const tx = -ny;
+                const ty = nx;
+
+                // Dot Product Tangent
+                const dpTan1 = b1.vx * tx + b1.vy * ty;
+                const dpTan2 = b2.vx * tx + b2.vy * ty;
+
+                // Dot Product Normal
+                const dpNorm1 = b1.vx * nx + b1.vy * ny;
+                const dpNorm2 = b2.vx * nx + b2.vy * ny;
+
+                // Conservation of momentum in 1D
+                const m1 = b1.mass;
+                const m2 = b2.mass;
+
+                const mom1 = (dpNorm1 * (m1 - m2) + 2 * m2 * dpNorm2) / (m1 + m2);
+                const mom2 = (dpNorm2 * (m2 - m1) + 2 * m1 * dpNorm1) / (m1 + m2);
+
+                b1.vx = tx * dpTan1 + nx * mom1;
+                b1.vy = ty * dpTan1 + ny * mom1;
+                b2.vx = tx * dpTan2 + nx * mom2;
+                b2.vy = ty * dpTan2 + ny * mom2;
+            }
         }
 
         window.addEventListener('resize', resize);
-        window.addEventListener('click', drawPoster);
+
+        // Mouse interaction
+        canvas.addEventListener('mousemove', e => {
+            // Push balls away
+            const mx = e.clientX;
+            const my = e.clientY;
+            balls.forEach(b => {
+                const dx = b.x - mx;
+                const dy = b.y - my;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < 100) {
+                    b.vx += (dx / d) * 0.5;
+                    b.vy += (dy / d) * 0.5;
+                }
+            });
+        });
 
         resize();
 
-        function drawPoster() {
-            // Background: light cream/white
-            ctx.fillStyle = '#F4F1EA';
-            ctx.fillRect(0, 0, width, height);
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
 
-            // Grid system
-            const cols = 4;
-            const rows = 6;
-            const cellW = width * 0.8 / cols;
-            const cellH = height * 0.8 / rows;
-            const startX = width * 0.1;
-            const startY = height * 0.1;
-
-            ctx.translate(startX, startY);
-
-            // Draw some large background shapes spanning multiple cells
-            for (let i = 0; i < 5; i++) {
-                const c = Math.floor(Math.random() * cols);
-                const r = Math.floor(Math.random() * rows);
-                const w = Math.floor(Math.random() * (cols - c)) + 1;
-                const h = Math.floor(Math.random() * (rows - r)) + 1;
-
-                const type = Math.floor(Math.random() * 3);
-                const color = colors[Math.floor(Math.random() * colors.length)];
-
-                ctx.fillStyle = color;
-
-                if (type === 0) { // Rect
-                    ctx.fillRect(c * cellW, r * cellH, w * cellW, h * cellH);
-                } else if (type === 1) { // Circle
-                    ctx.beginPath();
-                    const radius = Math.min(w * cellW, h * cellH) / 2;
-                    ctx.arc(c * cellW + w * cellW / 2, r * cellH + h * cellH / 2, radius, 0, Math.PI * 2);
-                    ctx.fill();
-                } else { // Triangle
-                    ctx.beginPath();
-                    if (Math.random() > 0.5) {
-                        ctx.moveTo(c * cellW, r * cellH + h * cellH);
-                        ctx.lineTo(c * cellW + w * cellW, r * cellH + h * cellH);
-                        ctx.lineTo(c * cellW + w * cellW, r * cellH);
-                    } else {
-                        ctx.moveTo(c * cellW, r * cellH);
-                        ctx.lineTo(c * cellW + w * cellW, r * cellH + h * cellH);
-                        ctx.lineTo(c * cellW, r * cellH + h * cellH);
-                    }
-                    ctx.fill();
+            // Check collisions
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    resolveCollision(balls[i], balls[j]);
                 }
             }
 
-            // Lines and accents
-            ctx.strokeStyle = '#111';
-            ctx.lineWidth = 4;
-            for (let i = 0; i < 3; i++) {
-                const x1 = Math.floor(Math.random() * (cols + 1)) * cellW;
-                const y1 = Math.floor(Math.random() * (rows + 1)) * cellH;
-                const x2 = Math.floor(Math.random() * (cols + 1)) * cellW;
-                const y2 = Math.floor(Math.random() * (rows + 1)) * cellH;
+            balls.forEach(b => {
+                b.update();
+                b.draw();
+            });
 
-                // Constrain angle
-                if (Math.random() > 0.5) {
-                    // Horizontal or vertical
-                    if (Math.random() > 0.5) ctx.beginPath(), ctx.moveTo(0, y1), ctx.lineTo(cols * cellW, y1), ctx.stroke();
-                    else ctx.beginPath(), ctx.moveTo(x1, 0), ctx.lineTo(x1, rows * cellH), ctx.stroke();
-                } else {
-                    // Diagonal
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                    ctx.stroke();
-                }
-            }
-
-            ctx.translate(-startX, -startY);
+            requestAnimationFrame(animate);
         }
+        animate();
     </script>
 </body>
 

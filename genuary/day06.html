@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jan. 6 (credit: George Henry Rowe)</title>
+    <title>Jan. 6 (credit: Jonathan Barbeau)</title>
     <style>
         body,
         html {
@@ -13,7 +13,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #000;
+            background: #87CEEB;
             color: #fff;
             font-family: sans-serif;
         }
@@ -27,14 +27,14 @@
         }
 
         canvas {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
         }
 
         .info {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 4px;
             pointer-events: none;
@@ -44,7 +44,7 @@
         .info h1 {
             margin: 0 0 5px 0;
             font-size: 1rem;
-            color: #ccc;
+            color: #fff;
         }
 
         .info p {
@@ -56,7 +56,7 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
             color: #fff;
             padding: 5px 10px;
             text-decoration: none;
@@ -66,7 +66,7 @@
         }
 
         .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -74,8 +74,9 @@
 <body>
     <a href="index.html" class="back-link">Back to Index</a>
     <div class="info">
-        <h1>Jan. 6 (credit: George Henry Rowe)</h1>
-        <p>Lights on/off. Click anywhere to toggle the lights.</p>
+        <h1>Jan. 6 (credit: Jonathan Barbeau)</h1>
+        <p>Make a landscape using only primitive shapes.</p>
+        <p style="font-size: 0.8rem; opacity: 0.8; margin-top:5px;">Click to regenerate.</p>
     </div>
     <div id="canvas-container">
         <canvas id="canvas"></canvas>
@@ -85,99 +86,128 @@
         const ctx = canvas.getContext('2d');
 
         let width, height;
-        let isLightOn = true;
-        let transition = 1.0; // 1.0 = on, 0.0 = off
-        let objects = [];
 
         function resize() {
             width = window.innerWidth;
             height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
-            initObjects();
-        }
-
-        function initObjects() {
-            objects = [];
-            for (let i = 0; i < 50; i++) {
-                objects.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    r: 10 + Math.random() * 40,
-                    hiddenShape: Math.random() > 0.5 ? 'rect' : 'circle',
-                    color: `hsl(${Math.random() * 360}, 70%, 50%)`
-                });
-            }
+            drawLandscape();
         }
 
         window.addEventListener('resize', resize);
-        window.addEventListener('click', () => {
-            isLightOn = !isLightOn;
-        });
+        window.addEventListener('click', drawLandscape);
 
         resize();
 
-        function draw() {
-            // Smooth transition
-            const target = isLightOn ? 1.0 : 0.0;
-            transition += (target - transition) * 0.1;
-
-            // Background
-            // Light mode: White (#eee)
-            // Dark mode: Black (#111)
-            const bgVal = Math.floor(17 + (238 - 17) * transition);
-            ctx.fillStyle = `rgb(${bgVal}, ${bgVal}, ${bgVal})`;
+        function drawLandscape() {
+            // Sky
+            ctx.fillStyle = '#87CEEB';
             ctx.fillRect(0, 0, width, height);
 
-            // Draw objects
-            objects.forEach(obj => {
-                ctx.save();
-                ctx.translate(obj.x, obj.y);
+            // Sun (Circle)
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            const sunX = Math.random() * width;
+            const sunY = Math.random() * (height * 0.4);
+            const sunR = 40 + Math.random() * 40;
+            ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
+            ctx.fill();
 
-                if (transition > 0.5) {
-                    // Lights ON: Show polite, orderly circles
-                    ctx.beginPath();
-                    ctx.arc(0, 0, obj.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(100, 100, 100, ${transition})`;
-                    ctx.fill();
-                } else {
-                    // Lights OFF: Show crazy glowing "monsters" or hidden shapes
-                    // Use transition to fade them in as lights go out (1 - transition)
-                    const opacity = 1 - transition;
-                    if (opacity > 0) {
-                        ctx.shadowBlur = 20;
-                        ctx.shadowColor = obj.color;
-                        ctx.fillStyle = obj.color;
+            // Clouds (Multiple Circles)
+            const numClouds = 5 + Math.random() * 10;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let i = 0; i < numClouds; i++) {
+                let cx = Math.random() * width;
+                let cy = Math.random() * (height * 0.5);
+                let size = 30 + Math.random() * 50;
 
-                        if (obj.hiddenShape === 'rect') {
-                            ctx.fillRect(-obj.r, -obj.r, obj.r * 2, obj.r * 2);
-                        } else {
-                            ctx.beginPath();
-                            // Draw a spiky shape
-                            for (let i = 0; i < 8; i++) {
-                                const angle = (Math.PI * 2 * i) / 8;
-                                const r = obj.r * (i % 2 === 0 ? 0.5 : 1);
-                                ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
-                            }
-                            ctx.fill();
-                        }
-                    }
-                }
-                ctx.restore();
-            });
-
-            // Draw "Switch" clue if fully dark
-            if (transition < 0.05) {
-                ctx.fillStyle = '#333';
-                ctx.font = '20px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText("Click to turn lights on", width / 2, height - 50);
+                ctx.beginPath();
+                ctx.arc(cx, cy, size, 0, Math.PI * 2);
+                ctx.arc(cx + size * 0.8, cy + size * 0.2, size * 0.7, 0, Math.PI * 2);
+                ctx.arc(cx - size * 0.8, cy + size * 0.2, size * 0.7, 0, Math.PI * 2);
+                ctx.fill();
             }
 
-            requestAnimationFrame(draw);
-        }
+            // Mountains (Triangles)
+            const numMountains = 5 + Math.random() * 5;
+            for (let i = 0; i < numMountains; i++) {
+                const h = height * (0.3 + Math.random() * 0.4);
+                const w = width * (0.3 + Math.random() * 0.4);
+                const x = Math.random() * width;
+                const groundY = height * 0.7; // Mountains sit behind hills
 
-        draw();
+                ctx.fillStyle = `hsl(${20 + Math.random() * 40}, 30%, ${20 + Math.random() * 20}%)`; // Brownish/Grey
+                ctx.beginPath();
+                ctx.moveTo(x, groundY - h); // Peak
+                ctx.lineTo(x - w / 2, groundY);
+                ctx.lineTo(x + w / 2, groundY);
+                ctx.fill();
+
+                // Snow cap (Triangle tip)
+                if (Math.random() > 0.3) {
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.moveTo(x, groundY - h);
+                    ctx.lineTo(x - w * 0.15, groundY - h + h * 0.3);
+                    ctx.lineTo(x + w * 0.15, groundY - h + h * 0.3);
+                    ctx.fill();
+                }
+            }
+
+            // Hills (Ellipses/Circles mostly)
+            ctx.fillStyle = '#228B22'; // ForestGreen
+            ctx.beginPath();
+            ctx.ellipse(width * 0.2, height, width * 0.6, height * 0.4, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#32CD32'; // LimeGreen
+            ctx.beginPath();
+            ctx.ellipse(width * 0.8, height, width * 0.6, height * 0.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Trees (Rectangles + Triangles)
+            const numTrees = 20 + Math.random() * 30;
+            for (let i = 0; i < numTrees; i++) {
+                const tx = Math.random() * width;
+                const ty = height * (0.6 + Math.random() * 0.4);
+                const tSize = 10 + Math.random() * 20;
+
+                // Trunk (Rect)
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(tx - tSize / 4, ty, tSize / 2, tSize);
+
+                // Leaves (Triangle)
+                ctx.fillStyle = '#006400';
+                ctx.beginPath();
+                ctx.moveTo(tx, ty - tSize * 2);
+                ctx.lineTo(tx - tSize, ty);
+                ctx.lineTo(tx + tSize, ty);
+                ctx.fill();
+            }
+
+            // House (Rect + Triangle)
+            const hx = width * (0.2 + Math.random() * 0.6);
+            const hy = height * 0.8;
+            const hw = 60;
+            const hh = 50;
+
+            // Walls
+            ctx.fillStyle = '#CD5C5C'; // IndianRed
+            ctx.fillRect(hx, hy - hh, hw, hh);
+
+            // Roof
+            ctx.fillStyle = '#8B0000'; // DarkRed
+            ctx.beginPath();
+            ctx.moveTo(hx + hw / 2, hy - hh - 30);
+            ctx.lineTo(hx - 10, hy - hh);
+            ctx.lineTo(hx + hw + 10, hy - hh);
+            ctx.fill();
+
+            // Door
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(hx + hw / 2 - 10, hy - 25, 20, 25);
+        }
     </script>
 </body>
 

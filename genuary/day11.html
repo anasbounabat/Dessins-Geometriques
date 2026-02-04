@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jan. 11 (credit: Manuel Larino)</title>
+    <title>Jan. 11 (credit: Rachel Ehrlich)</title>
     <style>
         body,
         html {
@@ -39,6 +39,7 @@
             border-radius: 4px;
             pointer-events: none;
             max-width: 400px;
+            z-index: 10;
         }
 
         .info h1 {
@@ -68,15 +69,28 @@
         .back-link:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
     </style>
 </head>
 
 <body>
     <a href="index.html" class="back-link">Back to Index</a>
     <div class="info">
-        <h1>Jan. 11 (credit: Manuel Larino)</h1>
-        <p>Quine. The code renders itself.</p>
+        <h1>Jan. 11 (credit: Rachel Ehrlich)</h1>
+        <p>Impossible day. A 2.5D Raycaster (Wolfenstein style) in raw Canvas.</p>
     </div>
+    <div id="controls">Use Arrow Keys to Move</div>
     <div id="canvas-container">
         <canvas id="canvas"></canvas>
     </div>
@@ -84,13 +98,36 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        let width, height;
-        const sourceCode = document.documentElement.outerHTML;
-        const lines = sourceCode.split('\n');
+        // Map
+        const mapSize = 16;
+        const map = [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1,
+            1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1,
+            1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 1, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 3, 0, 0, 0, 1,
+            1, 0, 0, 3, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+        ];
 
-        let scrollY = 0;
-        const fontSize = 14;
-        const lineHeight = 18;
+        let width, height;
+
+        // Player
+        let px = 8, py = 8;
+        let pDir = 0;
+        const FOV = Math.PI / 3;
+
+        // Input
+        const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
 
         function resize() {
             width = window.innerWidth;
@@ -100,55 +137,144 @@
         }
 
         window.addEventListener('resize', resize);
+        window.addEventListener('keydown', e => { if (keys.hasOwnProperty(e.code)) keys[e.code] = true; });
+        window.addEventListener('keyup', e => { if (keys.hasOwnProperty(e.code)) keys[e.code] = false; });
 
         resize();
 
-        function draw() {
-            // Fade effect
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fillRect(0, 0, width, height);
+        function update() {
+            const moveSpeed = 0.05;
+            const rotSpeed = 0.04;
 
-            ctx.font = `${fontSize}px monospace`;
+            if (keys.ArrowLeft) pDir -= rotSpeed;
+            if (keys.ArrowRight) pDir += rotSpeed;
 
-            // Calculate starting line based on scroll
-            const totalHeight = lines.length * lineHeight;
-            scrollY += 1.5; // Auto scroll speed
-            if (scrollY > totalHeight) scrollY = -height;
-
-            const startLineIndex = Math.floor(scrollY / lineHeight);
-
-            ctx.fillStyle = '#0f0'; // Matrix green
-
-            for (let i = 0; i < lines.length; i++) {
-                const y = i * lineHeight - scrollY + height / 2;
-
-                // Only draw visible lines
-                if (y > -lineHeight && y < height + lineHeight) {
-                    const line = lines[i];
-
-                    // Random glitch effect
-                    let renderLine = line;
-                    if (Math.random() > 0.98) {
-                        const charArr = line.split('');
-                        const randIdx = Math.floor(Math.random() * charArr.length);
-                        charArr[randIdx] = String.fromCharCode(33 + Math.floor(Math.random() * 94));
-                        renderLine = charArr.join('');
-                        ctx.fillStyle = '#fff';
-                    } else {
-                        ctx.fillStyle = '#0f0';
-                    }
-
-                    ctx.fillText(renderLine, 20, y);
+            if (keys.ArrowUp) {
+                const nx = px + Math.cos(pDir) * moveSpeed;
+                const ny = py + Math.sin(pDir) * moveSpeed;
+                if (map[Math.floor(ny) * mapSize + Math.floor(nx)] === 0) {
+                    px = nx; py = ny;
                 }
             }
-
-            // Decorative Matrix rain columns in background?
-            // Keep it simple: Just the source code scrolling elegantly.
-
-            requestAnimationFrame(draw);
+            if (keys.ArrowDown) {
+                const nx = px - Math.cos(pDir) * moveSpeed;
+                const ny = py - Math.sin(pDir) * moveSpeed;
+                if (map[Math.floor(ny) * mapSize + Math.floor(nx)] === 0) {
+                    px = nx; py = ny;
+                }
+            }
         }
 
-        draw();
+        function draw() {
+            // Draw Sky and Floor
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, width, height / 2);
+            ctx.fillStyle = '#555';
+            ctx.fillRect(0, height / 2, width, height / 2);
+
+            const numRays = width;
+
+            for (let x = 0; x < numRays; x++) {
+                const rayAngle = (pDir - FOV / 2.0) + (x / width) * FOV;
+                const eyeX = Math.cos(rayAngle);
+                const eyeY = Math.sin(rayAngle);
+
+                let distToWall = 0;
+                let hitWall = false;
+                let texture = 0;
+
+                let testX = Math.floor(px);
+                let testY = Math.floor(py);
+
+                const stepX = eyeX < 0 ? -1 : 1;
+                const stepY = eyeY < 0 ? -1 : 1;
+
+                let sideDistX = (eyeX < 0 ? px - testX : testX + 1 - px) / Math.abs(eyeX);
+                let sideDistY = (eyeY < 0 ? py - testY : testY + 1 - py) / Math.abs(eyeY);
+
+                const deltaDistX = Math.abs(1 / eyeX);
+                const deltaDistY = Math.abs(1 / eyeY);
+
+                let hitSide = 0; // 0 for NS, 1 for EW
+
+                while (!hitWall && distToWall < 20) {
+                    if (sideDistX < sideDistY) {
+                        sideDistX += deltaDistX;
+                        testX += stepX;
+                        hitSide = 0;
+                    } else {
+                        sideDistY += deltaDistY;
+                        testY += stepY;
+                        hitSide = 1;
+                    }
+
+                    if (testX < 0 || testX >= mapSize || testY < 0 || testY >= mapSize) {
+                        hitWall = true; distToWall = 20;
+                    } else {
+                        const cell = map[testY * mapSize + testX];
+                        if (cell > 0) {
+                            hitWall = true;
+                            texture = cell;
+                        }
+                    }
+                }
+
+                if (hitSide === 0) distToWall = (testX - px + (1 - stepX) / 2) / eyeX;
+                else distToWall = (testY - py + (1 - stepY) / 2) / eyeY;
+
+                // Correction for Fisheye
+                const correctedDist = distToWall * Math.cos(rayAngle - pDir);
+
+                const ceiling = height / 2.0 - height / correctedDist;
+                const floor = height - ceiling;
+                const wallHeight = floor - ceiling;
+
+                // Color based on wall type
+                let color;
+                if (texture === 1) color = [200, 50, 50]; // Red
+                else if (texture === 2) color = [50, 200, 50]; // Green
+                else if (texture === 3) color = [50, 50, 200]; // Blue
+                else if (texture === 4) color = [200, 200, 50]; // Yellow
+                else color = [255, 255, 255];
+
+                if (hitSide === 1) { // Shadow side
+                    color[0] *= 0.7; color[1] *= 0.7; color[2] *= 0.7;
+                }
+
+                // Fog
+                const fog = Math.min(1, 15 / correctedDist);
+                color[0] *= fog; color[1] *= fog; color[2] *= fog;
+
+                ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                ctx.fillRect(x, ceiling, 1, wallHeight);
+            }
+
+            // Minimap
+            const miniScale = 5;
+            const size = mapSize * miniScale;
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(10, height - size - 10, size, size);
+
+            for (let y = 0; y < mapSize; y++) {
+                for (let x = 0; x < mapSize; x++) {
+                    if (map[y * mapSize + x] > 0) {
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(10 + x * miniScale, height - size - 10 + y * miniScale, miniScale, miniScale);
+                    }
+                }
+            }
+            // Player on minimap
+            ctx.fillStyle = '#f00';
+            ctx.fillRect(10 + px * miniScale - 2, height - size - 10 + py * miniScale - 2, 4, 4);
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        loop();
     </script>
 </body>
 

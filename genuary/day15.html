@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 15 (credit: P1xelboy)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 15 (credit: P1xelboy)</h1>
+        <p>Invisible object. Shadows only.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let t = 0;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function draw() {
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, width, height);
+
+            // Light source position
+            const lightX = width / 2;
+            const lightY = height * 0.2;
+
+            // Invisible Object position (orbiting)
+            const objX = width / 2 + Math.cos(t) * 150;
+            const objY = height / 2 + Math.sin(t * 0.7) * 50;
+            const objR = 40;
+
+            // Draw Shadow
+            // Shadow projection logic:
+            // Calculate vector from light to object, project onto "floor" or wall.
+            // Let's pretend the floor is infinite at z=0, and we are looking from above.
+            // Actually, simplified 2D shadow:
+            // Cast rays from light, if they hit object, draw darkness further away.
+            // Or simpler: Project the circle onto the background based on light position.
+
+            const dx = objX - lightX;
+            const dy = objY - lightY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            const shadowDist = 200; // how far shadow is cast
+            const shadowX = lightX + dx * (1 + shadowDist / (dist + 1));
+            const shadowY = lightY + dy * (1 + shadowDist / (dist + 1));
+            const shadowR = objR * (1 + shadowDist / dist);
+
+            // Draw shadow
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.filter = 'blur(10px)';
+            ctx.arc(shadowX, shadowY, shadowR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.filter = 'none';
+
+            // Draw invisible object hints? (Maybe rim light? No, prompt says invisible)
+            // But maybe interactions?
+
+            // Let's add multiple invisible objects bouncing
+            // For now, single object is clear enough.
+
+            // Visualize Light source (optional)
+            ctx.beginPath();
+            ctx.fillStyle = '#ff9';
+            ctx.arc(lightX, lightY, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Glow
+            ctx.shadowBlur = 50;
+            ctx.shadowColor = '#ff9';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            t += 0.05;
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

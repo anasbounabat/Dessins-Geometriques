@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 23 (credit: PaoloCurtoni)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 23 (credit: PaoloCurtoni)</h1>
+        <p>Transparency. Overlapping mixing colors.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let t = 0;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function draw() {
+            // Clear screen white for subtractive mixing look
+            // or black for additive
+            // Let's do additive on dark
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.globalCompositeOperation = 'lighter'; // Additive blending
+            // OR 'multiply' on white bg for CMYK
+
+            const cx = width / 2;
+            const cy = height / 2;
+            const radius = Math.min(width, height) * 0.15;
+
+            // 3 orbiting colored circles (RGB)
+            const colors = ['#f00', '#0f0', '#00f'];
+
+            for (let i = 0; i < 3; i++) {
+                const angle = t * 0.02 + (i * Math.PI * 2 / 3);
+                const offset = radius * 1.5;
+                const x = cx + Math.cos(angle) * offset;
+                const y = cy + Math.sin(angle * 1.5) * offset; // Lissajous-ish
+
+                ctx.beginPath();
+                ctx.fillStyle = colors[i];
+                ctx.arc(x, y, radius * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Add some "glass" panes
+            ctx.globalCompositeOperation = 'source-over';
+            for (let i = 0; i < 5; i++) {
+                const x = (t * 20 + i * 200) % (width + 200) - 200;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.rect(x, 100 + i * 50, 150, 150);
+                ctx.fill();
+                ctx.stroke();
+
+                // Backdrop filter blur? Canvas doesn't support generic backdrop blur easily without reading pixels.
+                // So we stick to alpha blending.
+            }
+
+            t += 1;
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

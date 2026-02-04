@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 3 (credit: PaoloCurtoni)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 3 (credit: PaoloCurtoni)</h1>
+        <p>Fibonacci forever. Phyllotaxis pattern.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let n = 0;
+        let c = 8; // scaling factor
+        const angle = 137.5; // Golden angle
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            // Don't reset n here to keep growing.
+            // Clear background once
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        window.addEventListener('resize', () => {
+            resize();
+            n = 0; // Reset on resize for clean look
+        });
+
+        resize();
+
+        function draw() {
+            // Draw multiple points per frame to speed it up
+            for (let i = 0; i < 5; i++) {
+                const a = n * (angle * Math.PI / 180);
+                const r = c * Math.sqrt(n);
+
+                const x = r * Math.cos(a) + width / 2;
+                const y = r * Math.sin(a) + height / 2;
+
+                if (x > 0 && x < width && y > 0 && y < height) {
+                    const hue = (n * 0.1) % 360;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = `hsl(${hue}, 80%, 50%)`;
+                    ctx.fill();
+                } else if (r > Math.max(width, height)) {
+                    // Reset if out of bounds
+                    n = 0;
+                    ctx.fillStyle = 'rgba(17, 17, 17, 0.1)';
+                    ctx.fillRect(0, 0, width, height);
+                }
+
+                n++;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

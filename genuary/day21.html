@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 21 (credit: Piero)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 21 (credit: Piero)</h1>
+        <p>Bauhaus Poster. Minimalist geometry.</p>
+        <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Click to regenerate.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const colors = ['#E4002B', '#151F6D', '#F9D809', '#000000', '#F0F0F0']; // Red, Blue, Yellow, Black, White
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            drawPoster();
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('click', drawPoster);
+
+        resize();
+
+        function drawPoster() {
+            // Background: light cream/white
+            ctx.fillStyle = '#F4F1EA';
+            ctx.fillRect(0, 0, width, height);
+
+            // Grid system
+            const cols = 4;
+            const rows = 6;
+            const cellW = width * 0.8 / cols;
+            const cellH = height * 0.8 / rows;
+            const startX = width * 0.1;
+            const startY = height * 0.1;
+
+            ctx.translate(startX, startY);
+
+            // Draw some large background shapes spanning multiple cells
+            for (let i = 0; i < 5; i++) {
+                const c = Math.floor(Math.random() * cols);
+                const r = Math.floor(Math.random() * rows);
+                const w = Math.floor(Math.random() * (cols - c)) + 1;
+                const h = Math.floor(Math.random() * (rows - r)) + 1;
+
+                const type = Math.floor(Math.random() * 3);
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                ctx.fillStyle = color;
+
+                if (type === 0) { // Rect
+                    ctx.fillRect(c * cellW, r * cellH, w * cellW, h * cellH);
+                } else if (type === 1) { // Circle
+                    ctx.beginPath();
+                    const radius = Math.min(w * cellW, h * cellH) / 2;
+                    ctx.arc(c * cellW + w * cellW / 2, r * cellH + h * cellH / 2, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                } else { // Triangle
+                    ctx.beginPath();
+                    if (Math.random() > 0.5) {
+                        ctx.moveTo(c * cellW, r * cellH + h * cellH);
+                        ctx.lineTo(c * cellW + w * cellW, r * cellH + h * cellH);
+                        ctx.lineTo(c * cellW + w * cellW, r * cellH);
+                    } else {
+                        ctx.moveTo(c * cellW, r * cellH);
+                        ctx.lineTo(c * cellW + w * cellW, r * cellH + h * cellH);
+                        ctx.lineTo(c * cellW, r * cellH + h * cellH);
+                    }
+                    ctx.fill();
+                }
+            }
+
+            // Lines and accents
+            ctx.strokeStyle = '#111';
+            ctx.lineWidth = 4;
+            for (let i = 0; i < 3; i++) {
+                const x1 = Math.floor(Math.random() * (cols + 1)) * cellW;
+                const y1 = Math.floor(Math.random() * (rows + 1)) * cellH;
+                const x2 = Math.floor(Math.random() * (cols + 1)) * cellW;
+                const y2 = Math.floor(Math.random() * (rows + 1)) * cellH;
+
+                // Constrain angle
+                if (Math.random() > 0.5) {
+                    // Horizontal or vertical
+                    if (Math.random() > 0.5) ctx.beginPath(), ctx.moveTo(0, y1), ctx.lineTo(cols * cellW, y1), ctx.stroke();
+                    else ctx.beginPath(), ctx.moveTo(x1, 0), ctx.lineTo(x1, rows * cellH), ctx.stroke();
+                } else {
+                    // Diagonal
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+            }
+
+            ctx.translate(-startX, -startY);
+        }
+    </script>
+</body>
+
+</html>

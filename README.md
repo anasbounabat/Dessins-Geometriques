@@ -1,43 +1,49 @@
-# Expérimentations Géométriques & Artistiques
+# Genuary 2025 - Dessins Géométriques
 
-Ce dépôt contient des créations d'art génératif réalisées avec **HTML5 Canvas** et **JavaScript**. Il explore des figures géométriques complexes (Hypotrochoïdes) avec un rendu stylisé "Néon".
+This repository contains my submissions for **Genuary 2025**, a month-long generative art coding challenge.
 
-**Auteur :** Anas Bounabat  
-**Basé sur le template :** [v3ga/nouveaux_dessins_geometriques_et_artistiques](https://github.com/v3ga/nouveaux_dessins_geometriques_et_artistiques)
+Implemented using **HTML5 Canvas** and **Vanilla JavaScript**.
 
----
+## Gallery
 
-## 📂 Structure du projet
+Open [`genuary/index.html`](genuary/index.html) in your browser to view the interactive gallery of all 31 days.
 
-Le projet est organisé en dossiers distincts pour assurer une séparation propre du code et des ressources :
+## Challenges
 
-* **📁 projet1/** : **Rosace Néon Complexe (Multicolore)**
-    * Contient le code source (HTML, CSS, JS séparés) de la première animation.
-    * *Caractéristiques :* Dégradé de couleurs (Cyan, Magenta, Orange) et haute densité de traits.
+| Day | Prompt |
+| :-- | :----- |
+| 1 | One color, one shape. |
+| 2 | Twelve principles of animation. |
+| 3 | Exactly 42 lines of code. |
+| 4 | Black on black. |
+| 5 | Isometricity. |
+| 6 | Make a landscape using only CSS. |
+| 7 | Use software that is not intended to create art. |
+| 8 | Draw one million of something. |
+| 9 | The textile design patterns. |
+| 10 | You can only use TAU. |
+| 11 | Automatic. |
+| 12 | Subdivision. |
+| 13 | Triangles and nothing else. |
+| 14 | Pure black and white. No gray. |
+| 15 | Design a rug. |
+| 16 | Generative palette. |
+| 17 | Pi. |
+| 18 | What does wind look like? |
+| 19 | Op Art. |
+| 20 | Architecture. |
+| 21 | Collision detection. |
+| 22 | Pen plotter ready. |
+| 23 | Transparency. |
+| 24 | Geometric art. |
+| 25 | One line that may or may not intersect. |
+| 26 | Symmetry. |
+| 27 | Something interesting with no randomness. |
+| 28 | Infinite Scroll. |
+| 29 | Grid-based system. |
+| 30 | Abstract map. |
+| 31 | Pixel sorting. |
 
-* **📁 projet2/** : **Rosace Néon Bleu (Unique)**
-    * Contient le code source (HTML, CSS, JS séparés) de la deuxième animation.
-    * *Caractéristiques :* Teinte monochrome bleu électrique et paramètres géométriques différents.
+## License
 
-* **📁 images/** : **Exportations**
-    * Contient les rendus statiques des projets.
-    * Formats disponibles : `.png` (Image pixel) et `.svg` (Vectoriel).
-
----
-
-## 🛠️ Détails Techniques
-
-Chaque projet respecte les bonnes pratiques de développement web :
-
-1.  **Séparation des fichiers :** Le code est structuré en fichiers `.html`, `.css`, et `.js` distincts.
-2.  **Responsive Design :** Les animations s'adaptent automatiquement à la taille de la fenêtre du navigateur (`window.addEventListener('resize')`).
-3.  **Rendu Graphique :**
-    * Utilisation de l'API Canvas 2D.
-    * Effet de lueur (Glow) via `shadowBlur`.
-    * Mode de fusion `globalCompositeOperation = 'lighter'` pour créer des intensités lumineuses aux intersections.
-
-## 🚀 Comment utiliser
-
-1.  Clonez ce dépôt ou téléchargez les fichiers.
-2.  Ouvrez le fichier `index.html` situé dans le dossier **projet1** ou **projet2** avec n'importe quel navigateur web moderne (Chrome, Firefox, Safari).
-3.  Admirez l'animation générée en temps réel.
+MIT

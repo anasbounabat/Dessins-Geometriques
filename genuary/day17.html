@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 17 (credit: Ivan Dianov)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 17 (credit: Ivan Dianov)</h1>
+        <p>Wallpaper group. p4m symmetry.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let t = 0;
+        const tileSize = 200;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function drawTile(ctx, size, time) {
+            // Draw a single fundamental region (triangle)
+            // Then we will replicate it.
+            // Actually, let's just draw into a square and tile it with reflections.
+
+            const half = size / 2;
+
+            // Abstract generative art inside the tile
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(size, 0);
+            ctx.lineTo(size, size);
+            ctx.lineTo(0, size);
+            ctx.fillStyle = '#111';
+            ctx.fill();
+
+            // Shapes
+            ctx.fillStyle = `hsl(${time % 360}, 60%, 50%)`;
+            ctx.beginPath();
+            ctx.arc(half, half, size * 0.4 + Math.sin(time * 0.05) * 20, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(half, size, size, 0);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(0, size);
+            ctx.quadraticCurveTo(size, half, size, size);
+            ctx.stroke();
+
+            // Add more complexity
+            ctx.strokeStyle = `hsl(${(time + 180) % 360}, 60%, 50%)`;
+            ctx.beginPath();
+            ctx.arc(0, 0, size * 0.5, 0, Math.PI / 2);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(size, size, size * 0.5, Math.PI, Math.PI * 1.5);
+            ctx.stroke();
+        }
+
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, width, height);
+
+            const cols = Math.ceil(width / tileSize) + 1;
+            const rows = Math.ceil(height / tileSize) + 1;
+
+            // Generate off-screen tile
+            const tileCanvas = document.createElement('canvas');
+            tileCanvas.width = tileSize;
+            tileCanvas.height = tileSize;
+            const tileCtx = tileCanvas.getContext('2d');
+
+            // Draw fundamental pattern
+            drawTile(tileCtx, tileSize, t);
+
+            // Tile it
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    ctx.save();
+                    const x = i * tileSize;
+                    const y = j * tileSize;
+
+                    ctx.translate(x, y);
+
+                    // p4m symmetry: mirror reflections
+                    // Check parity of i and j to decide mirroring
+                    // Even-Even: Normal
+                    // Odd-Even: Mirror X
+                    // Even-Odd: Mirror Y
+                    // Odd-Odd: Mirror X and Y
+
+                    if (i % 2 !== 0) {
+                        ctx.translate(tileSize, 0);
+                        ctx.scale(-1, 1);
+                    }
+                    if (j % 2 !== 0) {
+                        ctx.translate(0, tileSize);
+                        ctx.scale(1, -1);
+                    }
+
+                    ctx.drawImage(tileCanvas, 0, 0);
+                    ctx.restore();
+                }
+            }
+
+            t += 1;
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

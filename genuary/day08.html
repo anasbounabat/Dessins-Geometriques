@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 8 (credit: PaoloCurtoni)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 8 (credit: PaoloCurtoni)</h1>
+        <p>A City. Create a generative metropolis.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let layers = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initCity();
+        }
+
+        class Building {
+            constructor(x, w, h, color) {
+                this.x = x;
+                this.w = w;
+                this.h = h;
+                this.color = color;
+                this.windows = [];
+
+                // Generate windows
+                const rows = Math.floor(h / 20);
+                const cols = Math.floor(w / 15);
+                for (let r = 1; r < rows; r++) {
+                    for (let c = 1; c < cols; c++) {
+                        if (Math.random() > 0.3) {
+                            this.windows.push({
+                                x: c * 15 - 5,
+                                y: r * 20 - 5,
+                                on: Math.random() > 0.5
+                            });
+                        }
+                    }
+                }
+            }
+
+            draw(ctx, scrollX) {
+                const drawX = this.x - scrollX;
+                if (drawX + this.w < 0 || drawX > width) return; // Cull
+
+                ctx.fillStyle = this.color;
+                ctx.fillRect(drawX, height - this.h, this.w, this.h);
+
+                ctx.fillStyle = '#ff9';
+                this.windows.forEach(win => {
+                    if (win.on && Math.random() > 0.01) { // Flicker
+                        ctx.globalAlpha = 0.8;
+                        ctx.fillRect(drawX + win.x, height - this.h + win.y, 6, 10);
+                        ctx.globalAlpha = 1.0;
+                    }
+                });
+            }
+        }
+
+        class CityLayer {
+            constructor(speed, color, count, baseHeight, variation) {
+                this.speed = speed;
+                this.buildings = [];
+                this.scrollX = 0;
+
+                let cx = -100;
+                // Generate enough buildings for a loop or long scroll
+                for (let i = 0; i < count; i++) {
+                    const w = 50 + Math.random() * 100;
+                    const h = baseHeight + Math.random() * variation;
+                    this.buildings.push(new Building(cx, w, h, color));
+                    cx += w + Math.random() * 10 - 5; // Minimal gaps, some overlap
+                }
+                this.totalWidth = cx;
+            }
+
+            update() {
+                this.scrollX += this.speed;
+                // Simple infinite Scroll logic: If building goes off screen, move to end?
+                // For this demo, we just let it scroll and maybe reset if it ends, or generate endlessly.
+                // Let's implement wrap-around for endless feeling.
+
+                const first = this.buildings[0];
+                if (this.scrollX > first.x + first.w + 200) { // Large buffer
+                    // Move first building to last position
+                    const last = this.buildings[this.buildings.length - 1];
+                    first.x = last.x + last.w + Math.random() * 10 - 5;
+                    this.buildings.push(this.buildings.shift());
+                    // Need to adjust scrollX concept or just keep moving buildings?
+                    // Moving buildings is easier.
+                    // But we are drawing relative to scrollX. 
+                    // Let's NOT use scrollX variable, just move x coords.
+                }
+            }
+
+            updateAndDraw(ctx) {
+                this.buildings.forEach(b => {
+                    b.x -= this.speed;
+                });
+
+                // Wrap logic
+                if (this.buildings.length > 0) {
+                    const first = this.buildings[0];
+                    if (first.x + first.w < 0) {
+                        const last = this.buildings[this.buildings.length - 1];
+                        first.x = last.x + last.w - 5;
+                        // Randomize height again?
+                        // first.h = ...
+                        this.buildings.push(this.buildings.shift());
+                    }
+                }
+
+                this.buildings.forEach(b => b.draw(ctx, 0));
+            }
+        }
+
+        function initCity() {
+            layers = [
+                new CityLayer(0.5, '#222', 50, 100, 200),
+                new CityLayer(1.0, '#333', 50, 200, 300),
+                new CityLayer(2.0, '#111', 50, 300, 400)
+            ];
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function draw() {
+            // Sky
+            const grad = ctx.createLinearGradient(0, 0, 0, height);
+            grad.addColorStop(0, '#000033');
+            grad.addColorStop(1, '#663366');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            // Stars
+            ctx.fillStyle = '#fff';
+            if (Math.random() > 0.5) {
+                // simple twinkle optimized: draw static stars in real app, here dynamic
+                for (let i = 0; i < 5; i++) {
+                    ctx.fillRect(Math.random() * width, Math.random() * height / 2, 2, 2);
+                }
+            }
+
+            layers.forEach(l => l.updateAndDraw(ctx));
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

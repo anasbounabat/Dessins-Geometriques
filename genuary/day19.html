@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 19 (credit: Jos Vromans)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 19 (credit: Jos Vromans)</h1>
+        <p>16x16. Animated grid.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const gridSize = 16;
+        let t = 0;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function draw() {
+            // Clear screen
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, width, height);
+
+            // Calculate a nice centered square size
+            const minDim = Math.min(width, height);
+            const boxSize = minDim * 0.8;
+            const cellSize = boxSize / gridSize;
+
+            const startX = (width - boxSize) / 2;
+            const startY = (height - boxSize) / 2;
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const posX = startX + x * cellSize;
+                    const posY = startY + y * cellSize;
+
+                    // Generate pattern:
+                    // Distance from center
+                    const cx = x - 7.5;
+                    const cy = y - 7.5;
+                    const d = Math.sqrt(cx * cx + cy * cy);
+
+                    // Wave
+                    const v = Math.sin(d * 0.5 - t * 0.1) * 0.5 + 0.5;
+
+                    // Hue shift based on x/y
+                    const hue = (t * 2 + x * 10 + y * 10) % 360;
+
+                    ctx.fillStyle = `hsl(${hue}, ${v * 100}%, 50%)`;
+
+                    // Draw cell with gap
+                    const gap = 2;
+                    ctx.fillRect(posX + gap, posY + gap, cellSize - gap * 2, cellSize - gap * 2);
+
+                    // Highlight center?
+                    if (x === 7 && y === 7 || x === 8 && y === 8 || x === 7 && y === 8 || x === 8 && y === 7) {
+                        ctx.fillStyle = `hsl(${(hue + 180) % 360}, 100%, 70%)`;
+                        ctx.fillRect(posX + cellSize * 0.25, posY + cellSize * 0.25, cellSize * 0.5, cellSize * 0.5);
+                    }
+                }
+            }
+
+            t += 1;
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

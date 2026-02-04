@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 16 (credit: Ivan Dianov)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 16 (credit: Ivan Dianov)</h1>
+        <p>Order and disorder. Move mouse to introduce entropy.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+        const gap = 20;
+        let mouse = { x: -1000, y: -1000 };
+
+        class Particle {
+            constructor(x, y) {
+                this.originX = x;
+                this.originY = y;
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+            }
+
+            update() {
+                // Distance to mouse
+                const dx = this.x - mouse.x;
+                const dy = this.y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                // Disorder force
+                if (dist < 150) {
+                    const angle = Math.atan2(dy, dx);
+                    const force = (150 - dist) * 0.1;
+                    this.vx += Math.cos(angle) * force + (Math.random() - 0.5);
+                    this.vy += Math.sin(angle) * force + (Math.random() - 0.5);
+                }
+
+                // Return to order force (Spring)
+                const homeDx = this.originX - this.x;
+                const homeDy = this.originY - this.y;
+
+                this.vx += homeDx * 0.05;
+                this.vy += homeDy * 0.05;
+
+                this.vx *= 0.9;
+                this.vy *= 0.9;
+
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            draw() {
+                // Color based on displacement (Order = White, Disorder = Red)
+                const disp = Math.sqrt((this.x - this.originX) ** 2 + (this.y - this.originY) ** 2);
+                const r = Math.min(255, disp * 5);
+                const g = Math.max(0, 255 - disp * 5);
+                const b = Math.max(0, 255 - disp * 5);
+
+                ctx.fillStyle = `rgb(255, ${g}, ${b})`;
+                ctx.fillRect(this.x - 2, this.y - 2, 4, 4);
+            }
+        }
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initParticles();
+        }
+
+        function initParticles() {
+            particles = [];
+            const cols = Math.floor(width / gap);
+            const rows = Math.floor(height / gap);
+            const startX = (width - cols * gap) / 2;
+            const startY = (height - rows * gap) / 2;
+
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    particles.push(new Particle(startX + i * gap, startY + j * gap));
+                }
+            }
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        resize();
+
+        function draw() {
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, width, height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

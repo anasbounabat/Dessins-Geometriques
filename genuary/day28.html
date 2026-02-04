@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 28 (credit: Piero)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 28 (credit: Piero)</h1>
+        <p>Infinite Scroll. Retro grid tunnel.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let t = 0;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.lineWidth = 2;
+            const cx = width / 2;
+            const cy = height / 2;
+
+            // Draw perspective lines
+            const lines = 12;
+            ctx.strokeStyle = '#ff00ff';
+            for (let i = 0; i < lines; i++) {
+                const angle = (i / lines) * Math.PI * 2 + t * 0.005;
+                const x = cx + Math.cos(angle) * width;
+                const y = cy + Math.sin(angle) * width;
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+
+            // Draw moving grids
+            // z goes from far (0) to near (constant)
+            const speed = 2;
+            const tunnelLength = 500;
+            const offset = (t * speed) % 100;
+
+            ctx.strokeStyle = '#00ffff';
+
+            for (let z = 0; z < tunnelLength; z += 20) {
+                // Perspective projection
+                // size = fov / z
+                // z is distance.
+                // let's say realZ = (z - offset). if realZ < 0, wrap around.
+
+                let realZ = z - offset;
+                if (realZ <= 0) realZ += tunnelLength;
+
+                const scale = 200 / realZ;
+                if (scale > 20) continue; // too close/big
+                if (scale < 0) continue;
+
+                // Draw rect
+                const w = width * scale;
+                const h = height * scale;
+
+                ctx.beginPath();
+                ctx.rect(cx - w / 2, cy - h / 2, w, h);
+                ctx.stroke();
+            }
+
+            t += 1;
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

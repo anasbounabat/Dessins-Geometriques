@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 9 (credit: PaoloCurtoni)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 9 (credit: PaoloCurtoni)</h1>
+        <p>Crazy automaton. Evolving 1D cellular automata.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const cellSize = 5;
+        let cells = [];
+        let rule = 30;
+        let currentRow = 0;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            reset();
+        }
+
+        function reset() {
+            // Random rule between 0 and 255
+            rule = Math.floor(Math.random() * 256);
+            currentRow = 0;
+
+            // Clear
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, width, height);
+
+            // Init cells
+            const numCells = Math.ceil(width / cellSize);
+            cells = new Array(numCells).fill(0);
+
+            // Random start seeds
+            for (let i = 0; i < 5; i++) {
+                cells[Math.floor(Math.random() * numCells)] = 1;
+            }
+            cells[Math.floor(numCells / 2)] = 1; // Center seed
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('click', reset);
+
+        resize();
+
+        function calculateState(a, b, c) {
+            // Wolfram rule logic
+            // 7 6 5 4 3 2 1 0
+            // 111 110 101 100 011 010 001 000
+            let neighborhood = "" + a + b + c;
+            let value = parseInt(neighborhood, 2);
+            return (rule >> value) & 1;
+        }
+
+        function draw() {
+            // If filled screen, reset with new rule
+            if (currentRow * cellSize > height) {
+                reset();
+                return requestAnimationFrame(draw);
+            }
+
+            // Draw current row
+            for (let i = 0; i < cells.length; i++) {
+                if (cells[i] === 1) {
+                    // Color based on rule ID for variety
+                    const hue = (rule * 2 + currentRow * 0.5) % 360;
+                    ctx.fillStyle = `hsl(${hue}, 80%, 50%)`;
+                    ctx.fillRect(i * cellSize, currentRow * cellSize, cellSize, cellSize);
+                }
+            }
+
+            // Calculate next generation
+            let nextCells = new Array(cells.length).fill(0);
+            for (let i = 0; i < cells.length; i++) {
+                const left = cells[(i - 1 + cells.length) % cells.length];
+                const me = cells[i];
+                const right = cells[(i + 1) % cells.length];
+                nextCells[i] = calculateState(left, me, right);
+            }
+            cells = nextCells;
+            currentRow++;
+
+            // Speed up by doing multiple rows per frame?
+            // Actually it's fast enough.
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

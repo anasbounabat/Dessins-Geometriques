@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 27 (credit: Manuel Larino)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 27 (credit: Manuel Larino)</h1>
+        <p>Something interesting with no randomness. Lorenz Attractor.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let x = 0.01, y = 0, z = 0;
+        const a = 10;
+        const b = 28;
+        const c = 8.0 / 3.0;
+        let points = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            // Reset
+            x = 0.1; y = 0; z = 0;
+            points = [];
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function draw() {
+            const dt = 0.01;
+
+            // Calculate a batch of points per frame for speed
+            for (let i = 0; i < 20; i++) {
+                const dx = (a * (y - x)) * dt;
+                const dy = (x * (b - z) - y) * dt;
+                const dz = (x * y - c * z) * dt;
+                x = x + dx;
+                y = y + dy;
+                z = z + dz;
+                points.push({ x, y, z });
+
+                if (points.length > 5000) points.shift(); // Keep trail limited? Or infinite?
+            }
+
+            // Clear screen or trail?
+            // Let's do trail effect
+            ctx.fillStyle = 'rgba(17, 17, 17, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.beginPath();
+            const scale = 15;
+            const cx = width / 2;
+            const cy = height / 2;
+
+            // Draw points
+            // Use z for color
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+                // Simple projection
+                const px = cx + p.x * scale;
+                const py = cy + p.y * scale; // ignoring z projection for simplicity or maybe project?
+
+                // Let's iterate and draw lines
+                if (i > 0) {
+                    const pp = points[i - 1];
+                    const ppx = cx + pp.x * scale;
+                    const ppy = cy + pp.y * scale;
+
+                    ctx.beginPath();
+                    ctx.moveTo(ppx, ppy);
+                    ctx.lineTo(px, py);
+                    ctx.strokeStyle = `hsl(${p.z * 5}, 100%, 50%)`;
+                    ctx.stroke();
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

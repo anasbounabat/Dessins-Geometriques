@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 6 (credit: George Henry Rowe)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 6 (credit: George Henry Rowe)</h1>
+        <p>Lights on/off. Click anywhere to toggle the lights.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let isLightOn = true;
+        let transition = 1.0; // 1.0 = on, 0.0 = off
+        let objects = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initObjects();
+        }
+
+        function initObjects() {
+            objects = [];
+            for (let i = 0; i < 50; i++) {
+                objects.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: 10 + Math.random() * 40,
+                    hiddenShape: Math.random() > 0.5 ? 'rect' : 'circle',
+                    color: `hsl(${Math.random() * 360}, 70%, 50%)`
+                });
+            }
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('click', () => {
+            isLightOn = !isLightOn;
+        });
+
+        resize();
+
+        function draw() {
+            // Smooth transition
+            const target = isLightOn ? 1.0 : 0.0;
+            transition += (target - transition) * 0.1;
+
+            // Background
+            // Light mode: White (#eee)
+            // Dark mode: Black (#111)
+            const bgVal = Math.floor(17 + (238 - 17) * transition);
+            ctx.fillStyle = `rgb(${bgVal}, ${bgVal}, ${bgVal})`;
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw objects
+            objects.forEach(obj => {
+                ctx.save();
+                ctx.translate(obj.x, obj.y);
+
+                if (transition > 0.5) {
+                    // Lights ON: Show polite, orderly circles
+                    ctx.beginPath();
+                    ctx.arc(0, 0, obj.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(100, 100, 100, ${transition})`;
+                    ctx.fill();
+                } else {
+                    // Lights OFF: Show crazy glowing "monsters" or hidden shapes
+                    // Use transition to fade them in as lights go out (1 - transition)
+                    const opacity = 1 - transition;
+                    if (opacity > 0) {
+                        ctx.shadowBlur = 20;
+                        ctx.shadowColor = obj.color;
+                        ctx.fillStyle = obj.color;
+
+                        if (obj.hiddenShape === 'rect') {
+                            ctx.fillRect(-obj.r, -obj.r, obj.r * 2, obj.r * 2);
+                        } else {
+                            ctx.beginPath();
+                            // Draw a spiky shape
+                            for (let i = 0; i < 8; i++) {
+                                const angle = (Math.PI * 2 * i) / 8;
+                                const r = obj.r * (i % 2 === 0 ? 0.5 : 1);
+                                ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+                            }
+                            ctx.fill();
+                        }
+                    }
+                }
+                ctx.restore();
+            });
+
+            // Draw "Switch" clue if fully dark
+            if (transition < 0.05) {
+                ctx.fillStyle = '#333';
+                ctx.font = '20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText("Click to turn lights on", width / 2, height - 50);
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 11 (credit: Manuel Larino)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 11 (credit: Manuel Larino)</h1>
+        <p>Quine. The code renders itself.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const sourceCode = document.documentElement.outerHTML;
+        const lines = sourceCode.split('\n');
+
+        let scrollY = 0;
+        const fontSize = 14;
+        const lineHeight = 18;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function draw() {
+            // Fade effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.font = `${fontSize}px monospace`;
+
+            // Calculate starting line based on scroll
+            const totalHeight = lines.length * lineHeight;
+            scrollY += 1.5; // Auto scroll speed
+            if (scrollY > totalHeight) scrollY = -height;
+
+            const startLineIndex = Math.floor(scrollY / lineHeight);
+
+            ctx.fillStyle = '#0f0'; // Matrix green
+
+            for (let i = 0; i < lines.length; i++) {
+                const y = i * lineHeight - scrollY + height / 2;
+
+                // Only draw visible lines
+                if (y > -lineHeight && y < height + lineHeight) {
+                    const line = lines[i];
+
+                    // Random glitch effect
+                    let renderLine = line;
+                    if (Math.random() > 0.98) {
+                        const charArr = line.split('');
+                        const randIdx = Math.floor(Math.random() * charArr.length);
+                        charArr[randIdx] = String.fromCharCode(33 + Math.floor(Math.random() * 94));
+                        renderLine = charArr.join('');
+                        ctx.fillStyle = '#fff';
+                    } else {
+                        ctx.fillStyle = '#0f0';
+                    }
+
+                    ctx.fillText(renderLine, 20, y);
+                }
+            }
+
+            // Decorative Matrix rain columns in background?
+            // Keep it simple: Just the source code scrolling elegantly.
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

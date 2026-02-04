@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 29 (credit: Monokai)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 29 (credit: Monokai)</h1>
+        <p>Grid-based system. Recursive subdivision.</p>
+        <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Click to regenerate.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const colors = ['#000', '#fff', '#f00', '#00f', '#ff0'];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            drawGrid();
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('click', drawGrid);
+
+        resize();
+
+        function drawGrid() {
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, width, height);
+
+            const rects = [{ x: 10, y: 10, w: width - 20, h: height - 20, depth: 0 }];
+
+            // Recursive split
+            for (let i = 0; i < 50; i++) {
+                // Pick a random rect
+                const idx = Math.floor(Math.random() * rects.length);
+                const r = rects[idx];
+
+                if (r.depth > 7) continue;
+                // Don't split too small
+                if (r.w < 50 || r.h < 50) continue;
+
+                rects.splice(idx, 1);
+
+                const splitVert = Math.random() > 0.5;
+
+                if (splitVert) {
+                    const splitPos = r.w * (0.3 + Math.random() * 0.4);
+                    rects.push({ x: r.x, y: r.y, w: splitPos, h: r.h, depth: r.depth + 1 });
+                    rects.push({ x: r.x + splitPos, y: r.y, w: r.w - splitPos, h: r.h, depth: r.depth + 1 });
+                } else {
+                    const splitPos = r.h * (0.3 + Math.random() * 0.4);
+                    rects.push({ x: r.x, y: r.y, w: r.w, h: splitPos, depth: r.depth + 1 });
+                    rects.push({ x: r.x, y: r.y + splitPos, w: r.w, h: r.h - splitPos, depth: r.depth + 1 });
+                }
+            }
+
+            // Draw rects
+            rects.forEach(r => {
+                ctx.fillStyle = Math.random() > 0.7 ? colors[Math.floor(Math.random() * colors.length)] : '#fff';
+                ctx.fillRect(r.x, r.y, r.w, r.h);
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#000';
+                ctx.strokeRect(r.x, r.y, r.w, r.h);
+            });
+        }
+    </script>
+</body>
+
+</html>

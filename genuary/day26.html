@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 26 (credit: Piero)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 26 (credit: Piero)</h1>
+        <p>Symmetry. Radial mandala.</p>
+        <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Move mouse to draw.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let symmetry = 12;
+        let mouse = { x: 0, y: 0, prevX: 0, prevY: 0 };
+        let isDrawing = false;
+        let hue = 0;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => {
+            mouse.prevX = mouse.x;
+            mouse.prevY = mouse.y;
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+
+            if (isDrawing || (Math.abs(mouse.x - mouse.prevX) + Math.abs(mouse.y - mouse.prevY) > 5)) {
+                drawSymmetry();
+                hue = (hue + 1) % 360;
+            }
+        });
+
+        resize();
+
+        function drawSymmetry() {
+            const cx = width / 2;
+            const cy = height / 2;
+            const mx = mouse.x - cx;
+            const my = mouse.y - cy;
+            const pmx = mouse.prevX - cx;
+            const pmy = mouse.prevY - cy;
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = `hsl(${hue}, 80%, 60%)`;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = ctx.strokeStyle;
+
+            for (let i = 0; i < symmetry; i++) {
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(i * (Math.PI * 2 / symmetry));
+
+                ctx.beginPath();
+                ctx.moveTo(pmx, pmy);
+                ctx.lineTo(mx, my);
+                ctx.stroke();
+
+                ctx.scale(1, -1); // Mirror
+                ctx.beginPath();
+                ctx.moveTo(pmx, pmy);
+                ctx.lineTo(mx, my);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            ctx.shadowBlur = 0;
+
+            // Fade out
+            // ctx.fillStyle = 'rgba(17, 17, 17, 0.05)';
+            // ctx.fillRect(0, 0, width, height); 
+            // Don't fade out, let it build up like a drawing.
+        }
+
+        // Auto-draw for demo
+        let t = 0;
+        function autoDraw() {
+            if (!mouse.x) return; // Wait for user interaction or just fake it?
+
+            // Fake mouse movement
+            const cx = width / 2;
+            const cy = height / 2;
+
+            // Lissajous
+            const x = Math.sin(t * 0.03) * Math.cos(t * 0.01) * (width * 0.4);
+            const y = Math.cos(t * 0.02) * Math.sin(t * 0.04) * (height * 0.4);
+
+            mouse.prevX = mouse.x || (cx + x);
+            mouse.prevY = mouse.y || (cy + y);
+            mouse.x = cx + x;
+            mouse.y = cy + y;
+
+            drawSymmetry();
+            hue = (hue + 0.5) % 360;
+            t++;
+
+            requestAnimationFrame(autoDraw);
+        }
+
+        // Start auto draw initially?
+        mouse.x = width / 2; mouse.y = height / 2;
+        autoDraw();
+
+    </script>
+</body>
+
+</html>

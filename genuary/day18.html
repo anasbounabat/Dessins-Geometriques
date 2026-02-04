@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 18 (credit: Baret LaVida)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 18 (credit: Baret LaVida)</h1>
+        <p>Unexpected path. Self-avoiding random walk.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const gridInfo = {
+            size: 10,
+            cols: 0,
+            rows: 0,
+            visited: [],
+            path: [],
+            current: null
+        };
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            reset();
+        }
+
+        function reset() {
+            gridInfo.cols = Math.floor(width / gridInfo.size);
+            gridInfo.rows = Math.floor(height / gridInfo.size);
+            gridInfo.visited = new Array(gridInfo.cols * gridInfo.rows).fill(false);
+            gridInfo.path = [];
+
+            // Start roughly in middle
+            gridInfo.current = {
+                col: Math.floor(gridInfo.cols / 2),
+                row: Math.floor(gridInfo.rows / 2)
+            };
+
+            markVisited(gridInfo.current);
+            gridInfo.path.push(gridInfo.current);
+
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function markVisited(pos) {
+            gridInfo.visited[pos.row * gridInfo.cols + pos.col] = true;
+        }
+
+        function isVisited(pos) {
+            if (pos.col < 0 || pos.col >= gridInfo.cols || pos.row < 0 || pos.row >= gridInfo.rows) return true;
+            return gridInfo.visited[pos.row * gridInfo.cols + pos.col];
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('click', reset);
+
+        resize();
+
+        function draw() {
+            // Speed up: multiple steps per frame
+            for (let i = 0; i < 50; i++) {
+                if (!gridInfo.current) break;
+
+                // Get neighbors
+                const neighbors = [
+                    { col: gridInfo.current.col + 1, row: gridInfo.current.row },
+                    { col: gridInfo.current.col - 1, row: gridInfo.current.row },
+                    { col: gridInfo.current.col, row: gridInfo.current.row + 1 },
+                    { col: gridInfo.current.col, row: gridInfo.current.row - 1 }
+                ];
+
+                const validNeighbors = neighbors.filter(n => !isVisited(n));
+
+                if (validNeighbors.length > 0) {
+                    const next = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
+                    markVisited(next);
+
+                    // Draw line logic
+                    const x1 = gridInfo.current.col * gridInfo.size;
+                    const y1 = gridInfo.current.row * gridInfo.size;
+                    const x2 = next.col * gridInfo.size;
+                    const y2 = next.row * gridInfo.size;
+
+                    // Color based on path length
+                    const hue = (gridInfo.path.length * 0.1) % 360;
+                    ctx.strokeStyle = `hsl(${hue}, 80%, 50%)`;
+                    ctx.lineWidth = gridInfo.size * 0.8;
+                    ctx.beginPath();
+                    ctx.moveTo(x1 + gridInfo.size / 2, y1 + gridInfo.size / 2);
+                    ctx.lineTo(x2 + gridInfo.size / 2, y2 + gridInfo.size / 2);
+                    ctx.stroke();
+
+                    gridInfo.path.push(next);
+                    gridInfo.current = next;
+                } else {
+                    // Backtrack
+                    gridInfo.path.pop();
+                    if (gridInfo.path.length > 0) {
+                        gridInfo.current = gridInfo.path[gridInfo.path.length - 1];
+                    } else {
+                        // Done / Reset
+                        reset();
+                    }
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

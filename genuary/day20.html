@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 20 (credit: Jos Vromans)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 20 (credit: Jos Vromans)</h1>
+        <p>One line. Hilbert Curve.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let t = 0;
+        const order = 6;
+        let N, totalPoints, path;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initHilbert();
+        }
+
+        function initHilbert() {
+            N = Math.pow(2, order);
+            totalPoints = N * N;
+            path = [];
+
+            const minDim = Math.min(width, height);
+            const size = minDim * 0.9;
+            const offsetX = (width - size) / 2;
+            const offsetY = (height - size) / 2;
+            const len = size / N;
+
+            for (let i = 0; i < totalPoints; i++) {
+                path.push(hilbert(i));
+                path[i].x = path[i].x * len + offsetX + len / 2;
+                path[i].y = path[i].y * len + offsetY + len / 2;
+            }
+        }
+
+        // Hilbert curve logic
+        function hilbert(i) {
+            const points = [
+                { x: 0, y: 0 },
+                { x: 0, y: 1 },
+                { x: 1, y: 1 },
+                { x: 1, y: 0 }
+            ];
+
+            let index = i & 3;
+            let v = points[index];
+
+            for (let j = 1; j < order; j++) {
+                i = i >>> 2;
+                index = i & 3;
+                let len = Math.pow(2, j);
+
+                if (index == 0) {
+                    let temp = v.x;
+                    v.x = v.y;
+                    v.y = temp;
+                } else if (index == 1) {
+                    v.y += len;
+                } else if (index == 2) {
+                    v.x += len;
+                    v.y += len;
+                } else if (index == 3) {
+                    let temp = len - 1 - v.x;
+                    v.x = len - 1 - v.y;
+                    v.y = temp;
+                    v.x += len;
+                }
+            }
+            return v;
+        }
+
+        window.addEventListener('resize', resize);
+
+        resize();
+
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+
+            // Draw segment
+            let steps = 1000; // Points to draw
+            // Animate t to reveal path
+            let currentPointLimit = Math.min(Math.floor(t * 10), totalPoints - 1);
+
+            // Gradient line
+            for (let i = 1; i <= currentPointLimit; i++) {
+                ctx.beginPath();
+                ctx.moveTo(path[i - 1].x, path[i - 1].y);
+                ctx.lineTo(path[i].x, path[i].y);
+                ctx.strokeStyle = `hsl(${(i / totalPoints) * 360 + t}, 80%, 50%)`;
+                ctx.stroke();
+            }
+
+            // Reset loop
+            if (currentPointLimit >= totalPoints - 1) {
+                // t=0; // Loop? Or just stay?
+                // Let's create a pulsing "electron" instead of full redraw maybe?
+                // Nah, simple redraw is satisfying.
+                t += 20; // fast forward to keep colors shifting
+            } else {
+                t += 1;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+
+</html>

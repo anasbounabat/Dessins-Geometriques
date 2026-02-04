@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jan. 30 (credit: Bart Simons)</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            max-width: 400px;
+        }
+
+        .info h1 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="back-link">Back to Index</a>
+    <div class="info">
+        <h1>Jan. 30 (credit: Bart Simons)</h1>
+        <p>Abstract map. Voronoi terrain.</p>
+        <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Click to regenerate.</p>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            drawMap();
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('click', drawMap);
+
+        resize();
+
+        function drawMap() {
+            ctx.fillStyle = '#222';
+            ctx.fillRect(0, 0, width, height);
+
+            const numPoints = 100;
+            const points = [];
+            const colors = [];
+
+            // Random points
+            for (let i = 0; i < numPoints; i++) {
+                points.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height
+                });
+
+                // Assign simplified biome based on y position (latitude) + noise
+                // We'll just use random for "Abstract"
+                const type = Math.random();
+                if (type < 0.3) colors.push('#1E3D59'); // Water
+                else if (type < 0.5) colors.push('#F5F0E1'); // Sand
+                else if (type < 0.8) colors.push('#1D4E25'); // Forest
+                else colors.push('#4E4E50'); // Mountain
+            }
+
+            // Voronoi Brute Force (slow but simple for 100 points)
+            // For each pixel, find closest point.
+            // Actually, brute force per pixel for Full HD is too slow (2 million pixels * 100 points = 200 million checks).
+            // Let's draw cones/cones method or just use path approximation?
+            // Better: canvas path drawing for approximate Voronoi is hard.
+            // Let's use a lower resolution grid and scale up.
+
+            const scale = 4;
+            const w = Math.ceil(width / scale);
+            const h = Math.ceil(height / scale);
+
+            const imgData = ctx.createImageData(w, h);
+            const data = imgData.data;
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    let minDist = Infinity;
+                    let nearest = 0;
+                    const rx = x * scale;
+                    const ry = y * scale;
+
+                    for (let i = 0; i < numPoints; i++) {
+                        const d = (points[i].x - rx) ** 2 + (points[i].y - ry) ** 2;
+                        if (d < minDist) {
+                            minDist = d;
+                            nearest = i;
+                        }
+                    }
+
+                    // Hex color to RGB
+                    const c = hexToRgb(colors[nearest]);
+                    const idx = (y * w + x) * 4;
+                    data[idx] = c.r;
+                    data[idx + 1] = c.g;
+                    data[idx + 2] = c.b;
+                    data[idx + 3] = 255;
+
+                    // Add border?
+                    if (Math.abs(minDist - 200) < 50) { // Rough border logic doesn't work well with dist squared
+                        // Skip border for speed
+                    }
+                }
+            }
+
+            // Draw small buffer
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            tempCanvas.getContext('2d').putImageData(imgData, 0, 0);
+
+            // Draw scaled up to main canvas
+            ctx.imageSmoothingEnabled = false; // Pixelated is fine for abstract
+            ctx.drawImage(tempCanvas, 0, 0, width, height);
+
+            // Draw points
+            for (let i = 0; i < numPoints; i++) {
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.beginPath();
+                ctx.arc(points[i].x, points[i].y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+    </script>
+</body>
+
+</html>

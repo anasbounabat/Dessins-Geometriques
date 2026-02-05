@@ -184,6 +184,175 @@
             <div class="prompt">Pixel sorting.</div>
         </a>
     </div>
+    </div>
+
+    <!-- Chatbot Section -->
+    <hr style="margin: 40px 0; border: 0; border-top: 1px solid #333;">
+
+    <div id="chatbot-container"
+        style="max-width: 600px; margin: 0 auto 50px auto; background: #222; border: 1px solid #333; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; text-align: left;">
+        <header style="padding: 15px; background: #111; border-bottom: 1px solid #333; text-align: center;">
+            <h2 style="margin: 0; font-size: 1.2rem; color: #eee; font-weight: normal;">Assistant</h2>
+        </header>
+
+        <div id="chat-history"
+            style="height: 400px; overflow-y: auto; padding: 20px; background: #222; display: flex; flex-direction: column; gap: 10px;">
+            <div class="message bot" style="align-self: flex-start; max-width: 75%;">
+                <div class="bubble"
+                    style="background: #333; color: #eee; padding: 10px 16px; border-radius: 8px; font-size: 1rem; line-height: 1.4; border: 1px solid #444;">
+                    Hello. How can I help you today?
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container"
+            style="padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px;">
+            <input type="text" id="user-input" placeholder="Type a message..." disabled
+                style="flex: 1; padding: 10px 15px; border-radius: 4px; border: 1px solid #333; background: #222; color: #eee; font-size: 1rem; outline: none;">
+            <button id="send-btn"
+                style="width: 40px; height: 40px; border-radius: 4px; background: #333; border: 1px solid #444; color: #eee; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 4L12 20" stroke="#eee" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M5 11L12 4L19 11" stroke="#eee" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- RiveScript Library -->
+    <script src="https://unpkg.com/rivescript@latest/dist/rivescript.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputField = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const chatHistory = document.getElementById('chat-history');
+
+            // Default state
+            inputField.disabled = true;
+            inputField.placeholder = "Loading...";
+
+            const bot = new RiveScript();
+
+            // Brain Data
+            const brain_content = `
+! version = 2.0
+! var name = Assistant
+
++ (hello|hi|hey|greetings)
+- Hello.
+- Hi there.
+
++ (apple|design|style)
+- Our design philosophy is simple and clean.
+- Simplicity is the ultimate sophistication.
+
++ (who are you|what are you)
+- I am your virtual assistant.
+- I am code.
+
++ how are you
+- I function within normal parameters.
+- All systems nominal.
+- I am doing well.
+
++ (bye|goodbye|exit)
+- Goodbye.
+
++ help
+- I can answer simple questions. Try saying 'Hello' or ask about 'design'.
+
++ siri
+- I am not Siri, but we share the same minimalist values.
+
++ my name is *
+- <set name=<star>>Nice to meet you, <get name>.
+
++ what is my name
+* <get name> == undefined => You haven't told me your name yet.
+- Your name is <get name>.
+
++ i like *
+- It is good to like <star>.
+- <star> is an interesting choice.
+
++ *
+- I am not sure I understand.
+- Could you say that again?
+`;
+
+            // Init Bot
+            // bot.stream() is synchronous
+            try {
+                if (bot.stream(brain_content)) {
+                    bot.sortReplies();
+                    inputField.disabled = false;
+                    inputField.placeholder = "iMessage";
+                    console.log("Bot loaded");
+                } else {
+                    console.error("Bot failed to load stream");
+                }
+            } catch (e) {
+                console.error("Bot error", e);
+            }
+
+            function addMessage(text, sender) {
+                const msgDiv = document.createElement('div');
+                msgDiv.style.alignSelf = sender === 'bot' ? 'flex-start' : 'flex-end';
+                msgDiv.style.maxWidth = '75%';
+                msgDiv.style.marginBottom = '8px';
+
+                const bubble = document.createElement('div');
+                bubble.innerText = text;
+                bubble.style.padding = '10px 16px';
+                bubble.style.borderRadius = '18px';
+                bubble.style.fontSize = '16px';
+                bubble.style.lineHeight = '1.4';
+                bubble.style.wordWrap = 'break-word';
+
+                if (sender === 'bot') {
+                    bubble.style.background = '#333';
+                    bubble.style.color = '#eee';
+                    bubble.style.border = '1px solid #444';
+                } else {
+                    bubble.style.background = '#444';
+                    bubble.style.color = '#eee';
+                    bubble.style.border = '1px solid #555';
+                }
+
+                msgDiv.appendChild(bubble);
+                chatHistory.appendChild(msgDiv);
+
+                setTimeout(() => {
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }, 10);
+            }
+
+            function handleInput() {
+                const text = inputField.value.trim();
+                if (text === "") return;
+
+                addMessage(text, 'user');
+                inputField.value = "";
+
+                setTimeout(async () => {
+                    try {
+                        const reply = await bot.reply("local-user", text);
+                        addMessage(reply, 'bot');
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }, 600);
+            }
+
+            sendBtn.addEventListener('click', handleInput);
+            inputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleInput();
+            });
+        });
+    </script>
 </body>
 
 </html>

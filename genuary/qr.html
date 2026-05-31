@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code — Anas Bounabat</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@300;400;700&display=swap');
+
+        :root {
+            --fg: #e8e0d4;
+            --bg: #0a0a0a;
+            --accent: #ff4500;
+            --dim: #555;
+            --border: #222;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--bg);
+            color: var(--fg);
+            font-size: 13px;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .topbar a {
+            color: var(--dim);
+            text-decoration: none;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        .topbar a:hover { color: var(--accent); }
+        .topbar .back { color: var(--fg); border-bottom: 1px solid var(--dim); }
+        nav { display: flex; gap: 1.5rem; }
+
+        /* MAIN */
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--border);
+        }
+
+        @media(max-width: 700px) {
+            main { grid-template-columns: 1fr; }
+        }
+
+        .qr-side {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            border-right: 1px solid var(--border);
+        }
+
+        #qr-wrapper {
+            background: #fff;
+            padding: 20px;
+            display: inline-block;
+        }
+
+        #qr-canvas {
+            display: block;
+        }
+
+        .info-side {
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .info-side .label {
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        .info-side h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .info-side .url {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: var(--accent);
+            word-break: break-all;
+        }
+
+        .info-side p {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            color: #888;
+            line-height: 1.7;
+            max-width: 400px;
+        }
+
+        .info-side .links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .info-side .links a {
+            font-size: 12px;
+            color: #666;
+            text-decoration: none;
+            letter-spacing: 0.05em;
+            transition: color 0.15s;
+        }
+
+        .info-side .links a:hover { color: var(--accent); }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 10px 20px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--fg);
+            border: 1px solid var(--dim);
+            background: none;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+            text-decoration: none;
+        }
+
+        .download-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        footer span, footer a {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        footer a:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <a href="index.html" class="back">← Back to Genuary</a>
+    <nav>
+        <a href="about.html">About Me</a>
+        <a href="project.html">Project</a>
+        <a href="https://www.anasbounabat.com/home" target="_blank">Portfolio ↗</a>
+    </nav>
+</div>
+
+<main>
+    <div class="qr-side">
+        <div id="qr-wrapper">
+            <canvas id="qr-canvas"></canvas>
+        </div>
+    </div>
+    <div class="info-side">
+        <span class="label">Scan to visit</span>
+        <h1>Portfolio<br>&amp; Genuary</h1>
+        <div class="url">anasbounabat.com</div>
+        <p>Scan this QR code to access Anas Bounabat's portfolio and Genuary 2025 generative art project.</p>
+        <div class="links">
+            <a href="https://www.anasbounabat.com/home" target="_blank">→ anasbounabat.com/home</a>
+            <a href="https://github.com/anasbounabat" target="_blank">→ github.com/anasbounabat</a>
+            <a href="mailto:anas.bounabat@edu.devinci.fr">→ anas.bounabat@edu.devinci.fr</a>
+        </div>
+        <a id="download-btn" class="download-btn" href="#" download="qr-anas-bounabat.png">↓ Download QR PNG</a>
+    </div>
+</main>
+
+<footer>
+    <span>Genuary 2025 — Anas Bounabat</span>
+    <a href="index.html">Back to Gallery</a>
+</footer>
+
+<!-- QR code generation (pure JS, no library) -->
+<script>
+(function(){
+    const url = 'https://www.anasbounabat.com/home';
+    const canvas = document.getElementById('qr-canvas');
+    const size = 280;
+
+    // Use the QRCode library from CDN
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+    script.onload = function(){
+        QRCode.toCanvas(canvas, url, {
+            width: size,
+            margin: 0,
+            color: { dark: '#000000', light: '#ffffff' }
+        }, function(err){
+            if(err) { console.error(err); return; }
+            const btn = document.getElementById('download-btn');
+            btn.href = canvas.toDataURL('image/png');
+        });
+    };
+    document.head.appendChild(script);
+})();
+</script>
+
+</body>
+</html>

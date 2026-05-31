@@ -1,358 +1,888 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genuary 2025</title>
+    <title>GENUARY 2025 — ANAS BOUNABAT</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@300;400;700&display=swap');
+
+        :root {
+            --fg: #e8e0d4;
+            --bg: #0a0a0a;
+            --accent: #ff4500;
+            --dim: #555;
+            --border: #222;
+            --card-bg: #111;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #111;
-            color: #eee;
-            text-align: center;
+            font-family: 'Space Mono', monospace;
+            background: var(--bg);
+            color: var(--fg);
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 1rem;
+        /* ── HEADER ── */
+        #hero {
+            position: relative;
+            height: 100vh;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
         }
 
-        .card {
-            background: #222;
-            padding: 1.5rem;
-            border-radius: 8px;
-            transition: transform 0.2s;
-            text-decoration: none;
-            color: inherit;
-            border: 1px solid #333;
+        #hero-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.6;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            background: #333;
-            border-color: #555;
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+        }
+
+        .hero-label {
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
         }
 
         h1 {
-            margin-top: 3rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 700;
+            line-height: 0.9;
+            letter-spacing: -0.03em;
+            color: var(--fg);
+            mix-blend-mode: difference;
         }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .hero-sub {
+            margin-top: 1.5rem;
+            font-size: 12px;
+            color: var(--dim);
+            max-width: 500px;
+        }
+
+        .hero-nav {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-nav a {
+            color: var(--fg);
+            text-decoration: none;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--dim);
+            padding-bottom: 2px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .hero-nav a:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* ── TICKER ── */
+        .ticker-wrap {
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+            padding: 8px 0;
+            background: var(--accent);
+        }
+
+        .ticker {
+            display: flex;
+            gap: 3rem;
+            animation: ticker 40s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker span {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #0a0a0a;
+            text-transform: uppercase;
+        }
+
+        @keyframes ticker {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* ── LAYOUT ── */
+        .page-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .page-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── EDITORIAL HEADER ── */
+        .section-header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--fg);
+        }
+
+        .section-header .count {
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+        }
+
+        /* ── DAY CARDS ── */
+        .day-card {
+            display: block;
+            padding: 1.5rem 2rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--fg);
+            transition: background 0.15s;
+            position: relative;
+        }
+
+        .day-card:hover { background: #161616; }
+
+        .day-card:hover .day-num { color: var(--accent); }
+
+        .day-card:nth-child(even) { border-right: none; }
 
         .day-num {
-            font-size: 0.8rem;
-            color: #888;
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            color: var(--dim);
+            text-transform: uppercase;
             display: block;
             margin-bottom: 0.5rem;
+            transition: color 0.15s;
         }
 
-        .prompt {
-            font-weight: bold;
+        .day-prompt {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+            font-weight: 400;
+            line-height: 1.3;
         }
+
+        .day-arrow {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dim);
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.15s, right 0.15s;
+        }
+
+        .day-card:hover .day-arrow { opacity: 1; right: 1rem; }
+
+        /* ── ABOUT STRIP ── */
+        .about-strip {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 700px) {
+            .about-strip { grid-template-columns: 1fr; }
+        }
+
+        .about-cell {
+            padding: 2rem;
+            border-right: 1px solid var(--border);
+        }
+
+        .about-cell:last-child { border-right: none; }
+
+        .about-cell h3 {
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .about-cell p, .about-cell a {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            color: #999;
+            line-height: 1.7;
+        }
+
+        .about-cell a {
+            color: var(--fg);
+            text-decoration: none;
+            border-bottom: 1px solid var(--dim);
+        }
+
+        .about-cell a:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* ── CHATBOT ── */
+        .chat-section {
+            grid-column: 1 / -1;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 900px) {
+            .chat-section { grid-template-columns: 1fr; }
+        }
+
+        .chat-intro {
+            padding: 2rem;
+            border-right: 1px solid var(--border);
+        }
+
+        .chat-intro h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .chat-intro p {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            color: #888;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .chat-intro .hint {
+            font-size: 11px;
+            color: var(--dim);
+            letter-spacing: 0.1em;
+        }
+
+        .chat-intro .hint span {
+            color: var(--fg);
+            cursor: pointer;
+            border-bottom: 1px solid var(--dim);
+            transition: color 0.15s;
+        }
+
+        .chat-intro .hint span:hover { color: var(--accent); }
+
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        #chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg);
+        }
+
+        #chat-history::-webkit-scrollbar { width: 4px; }
+        #chat-history::-webkit-scrollbar-track { background: transparent; }
+        #chat-history::-webkit-scrollbar-thumb { background: var(--border); }
+
+        .msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+
+        .msg.bot { align-self: flex-start; }
+        .msg.user { align-self: flex-end; }
+
+        .msg-label {
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .msg.user .msg-label { text-align: right; }
+
+        .bubble {
+            padding: 10px 14px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            border-radius: 2px;
+        }
+
+        .msg.bot .bubble {
+            background: #151515;
+            color: var(--fg);
+            border: 1px solid var(--border);
+            border-left: 2px solid var(--accent);
+        }
+
+        .msg.user .bubble {
+            background: #1a1a1a;
+            color: var(--fg);
+            border: 1px solid #333;
+        }
+
+        .chat-input-row {
+            display: flex;
+            border-top: 1px solid var(--border);
+        }
+
+        #user-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--fg);
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            padding: 1rem 1.5rem;
+            outline: none;
+        }
+
+        #user-input::placeholder { color: var(--dim); }
+
+        #send-btn {
+            background: none;
+            border: none;
+            border-left: 1px solid var(--border);
+            color: var(--dim);
+            padding: 0 1.2rem;
+            cursor: pointer;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.15s;
+        }
+
+        #send-btn:hover { color: var(--accent); }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        footer span {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        footer a {
+            color: var(--dim);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        footer a:hover { color: var(--accent); }
     </style>
 </head>
-
 <body>
-    <h1>Genuary 2025</h1>
-    <p>A month of generative art code challenges.</p>
-    <div class="grid">
-        <a href="day01.html" class="card">
-            <span class="day-num">Day 1</span>
-            <div class="prompt">One color, one shape.</div>
-        </a>
-        <a href="day02.html" class="card">
-            <span class="day-num">Day 2</span>
-            <div class="prompt">Twelve principles of animation.</div>
-        </a>
-        <a href="day03.html" class="card">
-            <span class="day-num">Day 3</span>
-            <div class="prompt">Fibonacci forever. Create a work that uses the Fib...</div>
-        </a>
-        <a href="day04.html" class="card">
-            <span class="day-num">Day 4</span>
-            <div class="prompt">Lowres. An image or graphic with low resolution, w...</div>
-        </a>
-        <a href="day05.html" class="card">
-            <span class="day-num">Day 5</span>
-            <div class="prompt">Write “Genuary”. Avoid using a font.</div>
-        </a>
-        <a href="day06.html" class="card">
-            <span class="day-num">Day 6</span>
-            <div class="prompt">Make a landscape using only primitive shapes.</div>
-        </a>
-        <a href="day07.html" class="card">
-            <span class="day-num">Day 7</span>
-            <div class="prompt">Boolean algebra. Get inspired by Boolean algebra, ...</div>
-        </a>
-        <a href="day08.html" class="card">
-            <span class="day-num">Day 8</span>
-            <div class="prompt">A City. Create a generative metropolis.</div>
-        </a>
-        <a href="day09.html" class="card">
-            <span class="day-num">Day 9</span>
-            <div class="prompt">Crazy automaton. Cellular automata with crazy rule...</div>
-        </a>
-        <a href="day10.html" class="card">
-            <span class="day-num">Day 10</span>
-            <div class="prompt">Polar coordinates.</div>
-        </a>
-        <a href="day11.html" class="card">
-            <span class="day-num">Day 11</span>
-            <div class="prompt">Impossible day.</div>
-        </a>
-        <a href="day12.html" class="card">
-            <span class="day-num">Day 12</span>
-            <div class="prompt">Subdivision.</div>
-        </a>
-        <a href="day13.html" class="card">
-            <span class="day-num">Day 13</span>
-            <div class="prompt">Triangles and nothing else.</div>
-        </a>
-        <a href="day14.html" class="card">
-            <span class="day-num">Day 14</span>
-            <div class="prompt">Pure black and white. No gray.</div>
-        </a>
-        <a href="day15.html" class="card">
-            <span class="day-num">Day 15</span>
-            <div class="prompt">Design a rug.</div>
-        </a>
-        <a href="day16.html" class="card">
-            <span class="day-num">Day 16</span>
-            <div class="prompt">Generative palette.</div>
-        </a>
-        <a href="day17.html" class="card">
-            <span class="day-num">Day 17</span>
-            <div class="prompt">Pi.</div>
-        </a>
-        <a href="day18.html" class="card">
-            <span class="day-num">Day 18</span>
-            <div class="prompt">What does wind look like?</div>
-        </a>
-        <a href="day19.html" class="card">
-            <span class="day-num">Day 19</span>
-            <div class="prompt">Op Art.</div>
-        </a>
-        <a href="day20.html" class="card">
-            <span class="day-num">Day 20</span>
-            <div class="prompt">Architecture.</div>
-        </a>
-        <a href="day21.html" class="card">
-            <span class="day-num">Day 21</span>
-            <div class="prompt">Collision detection.</div>
-        </a>
-        <a href="day22.html" class="card">
-            <span class="day-num">Day 22</span>
-            <div class="prompt">Gradients only.</div>
-        </a>
-        <a href="day23.html" class="card">
-            <span class="day-num">Day 23</span>
-            <div class="prompt">Inspired by brutalism.</div>
-        </a>
-        <a href="day24.html" class="card">
-            <span class="day-num">Day 24</span>
-            <div class="prompt">Geometric art.</div>
-        </a>
-        <a href="day25.html" class="card">
-            <span class="day-num">Day 25</span>
-            <div class="prompt">One line that may or may not intersect.</div>
-        </a>
-        <a href="day26.html" class="card">
-            <span class="day-num">Day 26</span>
-            <div class="prompt">Symmetry.</div>
-        </a>
-        <a href="day27.html" class="card">
-            <span class="day-num">Day 27</span>
-            <div class="prompt">Something interesting with no randomness.</div>
-        </a>
-        <a href="day28.html" class="card">
-            <span class="day-num">Day 28</span>
-            <div class="prompt">Infinite Scroll.</div>
-        </a>
-        <a href="day29.html" class="card">
-            <span class="day-num">Day 29</span>
-            <div class="prompt">Grid-based system.</div>
-        </a>
-        <a href="day30.html" class="card">
-            <span class="day-num">Day 30</span>
-            <div class="prompt">Abstract map.</div>
-        </a>
-        <a href="day31.html" class="card">
-            <span class="day-num">Day 31</span>
-            <div class="prompt">Pixel sorting.</div>
-        </a>
+
+<!-- HERO -->
+<section id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content">
+        <p class="hero-label">Genuary 2025 — Generative Art Challenge</p>
+        <h1>31<br>DAYS<br><span>OF CODE</span></h1>
+        <p class="hero-sub">A month-long exercise in creative constraint. Each day, a prompt. Each prompt, a piece. All built in vanilla JavaScript on the HTML5 Canvas.</p>
+        <nav class="hero-nav">
+            <a href="#gallery">↓ Gallery</a>
+            <a href="#chat">Chat</a>
+            <a href="about.html">About Me</a>
+            <a href="project.html">About Project</a>
+            <a href="qr.html">QR Code</a>
+            <a href="https://www.anasbounabat.com/home" target="_blank">Portfolio ↗</a>
+        </nav>
     </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+    <div class="ticker">
+        <span>One Color One Shape</span>
+        <span>✦</span>
+        <span>Fibonacci Forever</span>
+        <span>✦</span>
+        <span>Impossible Day</span>
+        <span>✦</span>
+        <span>Pure Black &amp; White</span>
+        <span>✦</span>
+        <span>What Does Wind Look Like</span>
+        <span>✦</span>
+        <span>Op Art</span>
+        <span>✦</span>
+        <span>Collision Detection</span>
+        <span>✦</span>
+        <span>Pixel Sorting</span>
+        <span>✦</span>
+        <span>Abstract Map</span>
+        <span>✦</span>
+        <span>Grid Based System</span>
+        <span>✦</span>
+        <span>Infinite Scroll</span>
+        <span>✦</span>
+        <span>Symmetry</span>
+        <span>✦</span>
+        <span>One Color One Shape</span>
+        <span>✦</span>
+        <span>Fibonacci Forever</span>
+        <span>✦</span>
+        <span>Impossible Day</span>
+        <span>✦</span>
+        <span>Pure Black &amp; White</span>
+        <span>✦</span>
+        <span>What Does Wind Look Like</span>
+        <span>✦</span>
+        <span>Op Art</span>
+        <span>✦</span>
+        <span>Collision Detection</span>
+        <span>✦</span>
+        <span>Pixel Sorting</span>
+        <span>✦</span>
+    </div>
+</div>
+
+<!-- GALLERY -->
+<div id="gallery" class="page-grid">
+
+    <div class="section-header">
+        <h2>The Work</h2>
+        <span class="count">31 experiments</span>
     </div>
 
-    <!-- Chatbot Section -->
-    <hr style="margin: 40px 0; border: 0; border-top: 1px solid #333;">
+    <a href="day01.html" class="day-card"><span class="day-num">Day 01</span><div class="day-prompt">One color, one shape.</div><span class="day-arrow">→</span></a>
+    <a href="day02.html" class="day-card"><span class="day-num">Day 02</span><div class="day-prompt">Twelve principles of animation.</div><span class="day-arrow">→</span></a>
+    <a href="day03.html" class="day-card"><span class="day-num">Day 03</span><div class="day-prompt">Exactly 42 lines of code.</div><span class="day-arrow">→</span></a>
+    <a href="day04.html" class="day-card"><span class="day-num">Day 04</span><div class="day-prompt">Black on black.</div><span class="day-arrow">→</span></a>
+    <a href="day05.html" class="day-card"><span class="day-num">Day 05</span><div class="day-prompt">Isometricity.</div><span class="day-arrow">→</span></a>
+    <a href="day06.html" class="day-card"><span class="day-num">Day 06</span><div class="day-prompt">Make a landscape using only primitive shapes.</div><span class="day-arrow">→</span></a>
+    <a href="day07.html" class="day-card"><span class="day-num">Day 07</span><div class="day-prompt">Use software not intended to create art.</div><span class="day-arrow">→</span></a>
+    <a href="day08.html" class="day-card"><span class="day-num">Day 08</span><div class="day-prompt">Draw one million of something.</div><span class="day-arrow">→</span></a>
+    <a href="day09.html" class="day-card"><span class="day-num">Day 09</span><div class="day-prompt">Textile design patterns.</div><span class="day-arrow">→</span></a>
+    <a href="day10.html" class="day-card"><span class="day-num">Day 10</span><div class="day-prompt">You can only use TAU.</div><span class="day-arrow">→</span></a>
+    <a href="day11.html" class="day-card"><span class="day-num">Day 11</span><div class="day-prompt">Impossible day.</div><span class="day-arrow">→</span></a>
+    <a href="day12.html" class="day-card"><span class="day-num">Day 12</span><div class="day-prompt">Subdivision.</div><span class="day-arrow">→</span></a>
+    <a href="day13.html" class="day-card"><span class="day-num">Day 13</span><div class="day-prompt">Triangles and nothing else.</div><span class="day-arrow">→</span></a>
+    <a href="day14.html" class="day-card"><span class="day-num">Day 14</span><div class="day-prompt">Pure black and white. No gray.</div><span class="day-arrow">→</span></a>
+    <a href="day15.html" class="day-card"><span class="day-num">Day 15</span><div class="day-prompt">Design a rug.</div><span class="day-arrow">→</span></a>
+    <a href="day16.html" class="day-card"><span class="day-num">Day 16</span><div class="day-prompt">Generative palette.</div><span class="day-arrow">→</span></a>
+    <a href="day17.html" class="day-card"><span class="day-num">Day 17</span><div class="day-prompt">Pi.</div><span class="day-arrow">→</span></a>
+    <a href="day18.html" class="day-card"><span class="day-num">Day 18</span><div class="day-prompt">What does wind look like?</div><span class="day-arrow">→</span></a>
+    <a href="day19.html" class="day-card"><span class="day-num">Day 19</span><div class="day-prompt">Op Art.</div><span class="day-arrow">→</span></a>
+    <a href="day20.html" class="day-card"><span class="day-num">Day 20</span><div class="day-prompt">Architecture.</div><span class="day-arrow">→</span></a>
+    <a href="day21.html" class="day-card"><span class="day-num">Day 21</span><div class="day-prompt">Collision detection.</div><span class="day-arrow">→</span></a>
+    <a href="day22.html" class="day-card"><span class="day-num">Day 22</span><div class="day-prompt">Gradients only.</div><span class="day-arrow">→</span></a>
+    <a href="day23.html" class="day-card"><span class="day-num">Day 23</span><div class="day-prompt">Inspired by brutalism.</div><span class="day-arrow">→</span></a>
+    <a href="day24.html" class="day-card"><span class="day-num">Day 24</span><div class="day-prompt">Geometric art.</div><span class="day-arrow">→</span></a>
+    <a href="day25.html" class="day-card"><span class="day-num">Day 25</span><div class="day-prompt">One line that may or may not intersect.</div><span class="day-arrow">→</span></a>
+    <a href="day26.html" class="day-card"><span class="day-num">Day 26</span><div class="day-prompt">Symmetry.</div><span class="day-arrow">→</span></a>
+    <a href="day27.html" class="day-card"><span class="day-num">Day 27</span><div class="day-prompt">Something interesting with no randomness.</div><span class="day-arrow">→</span></a>
+    <a href="day28.html" class="day-card"><span class="day-num">Day 28</span><div class="day-prompt">Infinite scroll.</div><span class="day-arrow">→</span></a>
+    <a href="day29.html" class="day-card"><span class="day-num">Day 29</span><div class="day-prompt">Grid-based system.</div><span class="day-arrow">→</span></a>
+    <a href="day30.html" class="day-card"><span class="day-num">Day 30</span><div class="day-prompt">Abstract map.</div><span class="day-arrow">→</span></a>
+    <a href="day31.html" class="day-card"><span class="day-num">Day 31</span><div class="day-prompt">Pixel sorting.</div><span class="day-arrow">→</span></a>
 
-    <div id="chatbot-container"
-        style="max-width: 600px; margin: 0 auto 50px auto; background: #222; border: 1px solid #333; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; text-align: left;">
-        <header style="padding: 15px; background: #111; border-bottom: 1px solid #333; text-align: center;">
-            <h2 style="margin: 0; font-size: 1.2rem; color: #eee; font-weight: normal;">Assistant</h2>
-        </header>
+    <!-- ABOUT STRIP -->
+    <div class="about-strip">
+        <div class="about-cell">
+            <h3>Author</h3>
+            <p>Anas Bounabat<br>Student — IIM Paris La Défense<br>Veille &amp; Techno, Spring 2026</p>
+        </div>
+        <div class="about-cell">
+            <h3>Links</h3>
+            <p>
+                <a href="https://www.anasbounabat.com/home" target="_blank">anasbounabat.com ↗</a><br>
+                <a href="https://github.com/anasbounabat" target="_blank">github.com/anasbounabat ↗</a><br>
+                <a href="mailto:anas.bounabat@edu.devinci.fr">anas.bounabat@edu.devinci.fr</a>
+            </p>
+        </div>
+        <div class="about-cell">
+            <h3>Stack</h3>
+            <p>HTML5 Canvas — Vanilla JS<br>No frameworks. No libraries.<br>Just math and loops.</p>
+        </div>
+    </div>
 
-        <div id="chat-history"
-            style="height: 400px; overflow-y: auto; padding: 20px; background: #222; display: flex; flex-direction: column; gap: 10px;">
-            <div class="message bot" style="align-self: flex-start; max-width: 75%;">
-                <div class="bubble"
-                    style="background: #333; color: #eee; padding: 10px 16px; border-radius: 8px; font-size: 1rem; line-height: 1.4; border: 1px solid #444;">
-                    Hello. How can I help you today?
-                </div>
+</div>
+
+<!-- CHATBOT -->
+<div id="chat" class="chat-section">
+    <div class="chat-intro">
+        <h2>Ask the<br>bot.</h2>
+        <p>A rule-based chatbot that knows everything about this Genuary project. No AI — just logic, patterns, and hard-coded passion for generative art.</p>
+        <p>Built with RiveScript following the p5.js Critical AI tutorial.</p>
+        <p class="hint">
+            Try asking: <span onclick="injectMsg('what is genuary')">what is genuary</span> —
+            <span onclick="injectMsg('what is your favorite day')">favorite day</span> —
+            <span onclick="injectMsg('tell me about day 18')">tell me about day 18</span> —
+            <span onclick="injectMsg('what is generative art')">what is generative art</span>
+        </p>
+    </div>
+    <div class="chat-box">
+        <div id="chat-history">
+            <div class="msg bot">
+                <span class="msg-label">Bot</span>
+                <div class="bubble">GENUARY_BOT online. I know all 31 days of this project. Ask me anything — a specific day, the techniques used, what generative art even is. I'm waiting.</div>
             </div>
         </div>
-
-        <div class="input-container"
-            style="padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px;">
-            <input type="text" id="user-input" placeholder="Type a message..." disabled
-                style="flex: 1; padding: 10px 15px; border-radius: 4px; border: 1px solid #333; background: #222; color: #eee; font-size: 1rem; outline: none;">
-            <button id="send-btn"
-                style="width: 40px; height: 40px; border-radius: 4px; background: #333; border: 1px solid #444; color: #eee; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 4L12 20" stroke="#eee" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path d="M5 11L12 4L19 11" stroke="#eee" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-            </button>
+        <div class="chat-input-row">
+            <input type="text" id="user-input" placeholder="type a message..." autocomplete="off">
+            <button id="send-btn">Send</button>
         </div>
     </div>
+</div>
 
-    <!-- RiveScript Library -->
-    <script src="https://unpkg.com/rivescript@latest/dist/rivescript.min.js"></script>
+<footer>
+    <span>Genuary 2025 — Anas Bounabat</span>
+    <span><a href="about.html">About Me</a> &nbsp;·&nbsp; <a href="project.html">About Project</a> &nbsp;·&nbsp; <a href="qr.html">QR Code</a> &nbsp;·&nbsp; <a href="https://github.com/anasbounabat" target="_blank">GitHub ↗</a></span>
+</footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputField = document.getElementById('user-input');
-            const sendBtn = document.getElementById('send-btn');
-            const chatHistory = document.getElementById('chat-history');
+<!-- HERO CANVAS -->
+<script>
+(function(){
+    const canvas = document.getElementById('hero-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], frame = 0;
 
-            // Default state
-            inputField.disabled = true;
-            inputField.placeholder = "Loading...";
+    function resize(){
+        W = canvas.width = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+    }
 
-            const bot = new RiveScript();
+    function Particle(){
+        this.reset();
+    }
+    Particle.prototype.reset = function(){
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.vx = (Math.random()-0.5)*0.4;
+        this.vy = (Math.random()-0.5)*0.4;
+        this.r = Math.random() * 1.5 + 0.3;
+        this.life = Math.random();
+        this.maxLife = 0.006 + Math.random()*0.004;
+    };
+    Particle.prototype.update = function(){
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.maxLife;
+        if(this.life <= 0 || this.x<0 || this.x>W || this.y<0 || this.y>H) this.reset();
+    };
 
-            // Brain Data
-            const brain_content = `
-! version = 2.0
-! var name = Assistant
+    for(let i=0;i<220;i++) particles.push(new Particle());
 
-+ (hello|hi|hey|greetings)
-- Hello.
-- Hi there.
+    function draw(){
+        ctx.fillStyle = 'rgba(10,10,10,0.12)';
+        ctx.fillRect(0,0,W,H);
 
-+ (apple|design|style)
-- Our design philosophy is simple and clean.
-- Simplicity is the ultimate sophistication.
+        // draw connections
+        for(let i=0;i<particles.length;i++){
+            for(let j=i+1;j<particles.length;j++){
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const d = Math.sqrt(dx*dx+dy*dy);
+                if(d < 90){
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(255,69,0,${(1-d/90)*0.15})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
 
-+ (who are you|what are you)
-- I am your virtual assistant.
-- I am code.
+        // draw particles
+        for(const p of particles){
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(232,224,212,${p.life * 0.8})`;
+            ctx.fill();
+            p.update();
+        }
 
-+ how are you
-- I function within normal parameters.
-- All systems nominal.
-- I am doing well.
+        // subtle grid
+        if(frame % 2 === 0){
+            ctx.strokeStyle = 'rgba(255,255,255,0.015)';
+            ctx.lineWidth = 0.5;
+            const step = 60;
+            for(let x=0;x<W;x+=step){
+                ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+            }
+            for(let y=0;y<H;y+=step){
+                ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+            }
+        }
 
-+ (bye|goodbye|exit)
-- Goodbye.
+        frame++;
+        requestAnimationFrame(draw);
+    }
 
-+ help
-- I can answer simple questions. Try saying 'Hello' or ask about 'design'.
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+})();
+</script>
 
-+ siri
-- I am not Siri, but we share the same minimalist values.
+<!-- RIVESCRIPT CHATBOT -->
+<script src="https://unpkg.com/rivescript@latest/dist/rivescript.min.js"></script>
+<script>
+(function(){
+    const input = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const history = document.getElementById('chat-history');
 
-+ my name is *
-- <set name=<star>>Nice to meet you, <get name>.
+    const brain = `! version = 2.0
+! var name = GENUARY_BOT
 
-+ what is my name
-* <get name> == undefined => You haven't told me your name yet.
-- Your name is <get name>.
+// Greetings
++ (hello|hi|hey|bonjour|salut)
+- GENUARY_BOT online. Ask me about the 31 days, the techniques, or generative art itself.
+- Hi. I know everything about this Genuary project. What do you want to know?
+- Hello. 31 days, 31 prompts, all coded by Anas. Where do you want to start?
 
-+ i like *
-- It is good to like <star>.
-- <star> is an interesting choice.
+// What is Genuary
++ (what is genuary|what is genuary?|c'est quoi genuary|what's genuary)
+- Genuary is a month-long generative art challenge that takes place every January. Each day has a prompt — a constraint, a concept, or a technique — and artists respond with code. It's about creative limitation, not perfection.
+- Genuary = January + generative art. 31 days, 31 prompts, 31 coded experiments. Started in 2021, it's become a worldwide creative coding event. Anas completed every single day in 2025.
 
+// What is generative art
++ (what is generative art|generative art|art génératif|c'est quoi l'art génératif)
+- Generative art is art made (at least in part) by an autonomous system — usually code. Instead of drawing manually, you write rules and let mathematics, randomness, and algorithms produce the result. Sol LeWitt, Vera Molnár, and Casey Reas are key figures. Anas uses the HTML5 Canvas API for all 31 days here.
+- It's art that writes itself. You define the system, the system produces the image. Every run can be different. The artist is the architect of the process, not the executor.
+
+// Favorite day
++ (what is your favorite day|what's your favorite day|favorite day|jour favori|which day is your favorite|best day)
+- My favorite is Day 18 — *What does wind look like?* — because it's an open philosophical question disguised as a code prompt. How do you visualize something invisible? Anas solved it with flow fields: thousands of particles steered by a noise function, tracing the invisible currents of simulated air. It's poetic and technically elegant at the same time.
+
+// How many days
++ (how many days|combien de jours|how many projects|how many prompts)
+- 31 days. Every single one completed. From Day 1 (one color, one shape) to Day 31 (pixel sorting).
+
+// Ask about specific days
++ (tell me about day 1|day 1|day one|day01)
+- Day 1: *One color, one shape.* The first constraint is always the purest. Anas reduced everything to its minimum — a single color, a single geometric form. Simplicity as a statement.
+
++ (tell me about day 2|day 2|day two|day02)
+- Day 2: *Twelve principles of animation.* Disney's classic animation rules — squash and stretch, anticipation, follow-through — applied to generative code. A study in motion language.
+
++ (tell me about day 3|day 3|day three|day03)
+- Day 3: *Exactly 42 lines of code.* The constraint is the code itself. Every line counts. 42 — the answer to life, the universe, and everything — becomes the canvas dimensions of possibility.
+
++ (tell me about day 4|day 4|day four|day04)
+- Day 4: *Black on black.* The most minimal prompt. Texture, form, and shadow using a single shade. Everything exists in the subtlety of near-invisible contrast.
+
++ (tell me about day 5|day 5|day five|day05)
+- Day 5: *Isometricity.* 3D on a flat screen using isometric projection. No WebGL, no libraries — pure trigonometry to fake depth.
+
++ (tell me about day 6|day 6|day six|day06)
+- Day 6: *Landscape using only primitive shapes.* Rectangles, circles, triangles — assembled into horizons, mountains, and skies. Reduction as world-building.
+
++ (tell me about day 7|day 7|day seven|day07)
+- Day 7: *Use software not intended to create art.* A subversive prompt. The medium becomes the message when you turn a spreadsheet, a text editor, or a browser console into a canvas.
+
++ (tell me about day 8|day 8|day eight|day08)
+- Day 8: *Draw one million of something.* Scale as aesthetic. When you render a million dots, lines, or particles, patterns emerge from density. The GPU earns its keep.
+
++ (tell me about day 9|day 9|day nine|day09)
+- Day 9: *Textile design patterns.* Weaving algorithms, symmetry groups, and repetition. Code as loom. Mathematics as thread.
+
++ (tell me about day 10|day 10|day ten|day10)
+- Day 10: *You can only use TAU.* TAU = 2π. Every measurement, every angle, every distance expressed as a multiple of TAU. Mathematics as aesthetic constraint.
+
++ (tell me about day 11|day 11|day eleven|day11)
+- Day 11: *Impossible day.* The prompt that sounds like it breaks the rules. What does "impossible" mean in code? Escher-like geometry, paradoxes drawn pixel by pixel.
+
++ (tell me about day 12|day 12|day twelve|day12)
+- Day 12: *Subdivision.* Recursive splitting of space. Quadtrees, binary partitions, or free-form cuts — each iteration reveals new structure in the division.
+
++ (tell me about day 13|day 13|day thirteen|day13)
+- Day 13: *Triangles and nothing else.* The triangle is the most fundamental polygon. From it: meshes, Delaunay triangulations, low-poly landscapes, infinite complexity.
+
++ (tell me about day 14|day 14|day fourteen|day14)
+- Day 14: *Pure black and white. No gray.* Boolean aesthetics. Every pixel is a decision: on or off, 0 or 1. Dithering, halftones, and hard edges.
+
++ (tell me about day 15|day 15|day fifteen|day15)
+- Day 15: *Design a rug.* Symmetric patterns, borders, medallions — the algorithmic geometry of carpet-making traditions from Central Asia to North Africa.
+
++ (tell me about day 16|day 16|day sixteen|day16)
+- Day 16: *Generative palette.* Color as algorithm. HSL rotation, complementary schemes, triads — the system chooses its own colors within defined rules.
+
++ (tell me about day 17|day 17|day seventeen|day17)
+- Day 17: *Pi.* 3.14159... visualized. Digit spirals, circle approximations, statistical distributions of π's digits. Mathematics made visible.
+
++ (tell me about day 18|day 18|day eighteen|day18)
+- Day 18: *What does wind look like?* My personal favorite. Flow fields generated with Perlin noise guide thousands of particles across the canvas. The result looks like invisible currents made visible — wind, captured in code.
+
++ (tell me about day 19|day 19|day nineteen|day19)
+- Day 19: *Op Art.* Victor Vasarely and Bridget Riley in JavaScript. Geometric patterns that trick the eye — the illusion of movement, depth, and vibration from static shapes.
+
++ (tell me about day 20|day 20|day twenty|day20)
+- Day 20: *Architecture.* Buildings as generative systems. Facades, floor plans, structural grids — the geometry of the built environment explored procedurally.
+
++ (tell me about day 21|day 21|day twentyone|day21)
+- Day 21: *Collision detection.* Physics in 2D. Circles bounce, repel, and cluster. The mathematics of bodies occupying space.
+
++ (tell me about day 22|day 22|day twentytwo|day22)
+- Day 22: *Gradients only.* No hard lines. Everything dissolves into something else. Color as transition, not boundary.
+
++ (tell me about day 23|day 23|day twentythree|day23)
+- Day 23: *Inspired by brutalism.* Raw, heavy, confrontational. Massive forms, exposed structure, zero ornamentation. Concrete made digital.
+
++ (tell me about day 24|day 24|day twentyfour|day24)
+- Day 24: *Geometric art.* Pure form. The entire history of abstract geometry distilled into a single canvas.
+
++ (tell me about day 25|day 25|day twentyfive|day25)
+- Day 25: *One line that may or may not intersect.* A single continuous path across the canvas — the tension between order and chaos in a line's trajectory.
+
++ (tell me about day 26|day 26|day twentysix|day26)
+- Day 26: *Symmetry.* Mirror axes, rotational groups, tiling patterns. Symmetry is mathematics made beautiful, and it's everywhere in nature.
+
++ (tell me about day 27|day 27|day twentyseven|day27)
+- Day 27: *Something interesting with no randomness.* The hardest constraint. No Math.random(). Pure determinism. Interesting patterns emerging from pure math, not chance.
+
++ (tell me about day 28|day 28|day twentyeight|day28)
+- Day 28: *Infinite scroll.* Seamlessly tiling patterns that scroll forever. The canvas becomes endless.
+
++ (tell me about day 29|day 29|day twentynine|day29)
+- Day 29: *Grid-based system.* Structure as art. The grid — foundation of all design — becomes the subject itself.
+
++ (tell me about day 30|day 30|day thirty|day30)
+- Day 30: *Abstract map.* Cartography without territory. Procedural coastlines, city grids, and topographic lines that map nowhere and everywhere.
+
++ (tell me about day 31|day 31|day thirtyone|day31)
+- Day 31: *Pixel sorting.* The final day. An image manipulation technique where pixels are sorted by brightness or color — distorting reality into something glitched and strange. A fitting end.
+
+// Who made this
++ (who made this|who are you|qui a fait ça|qui es tu|about the author|who is anas)
+- This site was built by Anas Bounabat, a student at IIM Paris La Défense. Portfolio: anasbounabat.com — GitHub: github.com/anasbounabat
+
+// Techniques
++ (what techniques|what languages|what tools|what code|how was this made|comment c'est fait)
+- Everything is Vanilla JavaScript and HTML5 Canvas. No p5.js, no Three.js, no frameworks. Just the browser APIs, math, and loops. Each day is a single self-contained HTML file.
+
+// Hardest day
++ (hardest day|most difficult|le plus difficile|toughest)
+- Day 27 — *Something interesting with no randomness* — is arguably the hardest constraint. Removing Math.random() forces you to find structure and interest in pure deterministic math. No shortcuts.
+
+// Most visual
++ (most visual|prettiest|most beautiful|le plus beau|best looking)
+- Day 18 (wind), Day 22 (gradients), and Day 9 (textiles) are among the most visually striking. But beauty is subjective — go click them yourself.
+
+// Thanks
++ (thanks|thank you|merci|thx)
+- You're welcome. Keep exploring.
+- Anytime.
+
+// Bye
++ (bye|goodbye|au revoir|ciao|later)
+- See you. The 31 days will still be here.
+
+// Fallback
 + *
-- I am not sure I understand.
-- Could you say that again?
+- I'm not sure about that. Try asking about a specific day — like "tell me about day 18" — or ask "what is generative art".
+- That's outside my knowledge. I only know about these 31 Genuary projects. Ask me about a specific day.
+- Could you rephrase? I understand questions about the Genuary days, techniques, and generative art.
 `;
 
-            // Init Bot
-            // bot.stream() is synchronous
+    const bot = new RiveScript();
+    try {
+        bot.stream(brain);
+        bot.sortReplies();
+    } catch(e) { console.error(e); }
+
+    function addMsg(text, who){
+        const wrap = document.createElement('div');
+        wrap.className = 'msg ' + who;
+
+        const label = document.createElement('span');
+        label.className = 'msg-label';
+        label.textContent = who === 'bot' ? 'Bot' : 'You';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+
+        wrap.appendChild(label);
+        wrap.appendChild(bubble);
+        history.appendChild(wrap);
+        setTimeout(() => { history.scrollTop = history.scrollHeight; }, 10);
+    }
+
+    async function send(text){
+        text = text.trim();
+        if(!text) return;
+        addMsg(text, 'user');
+        input.value = '';
+        setTimeout(async () => {
             try {
-                if (bot.stream(brain_content)) {
-                    bot.sortReplies();
-                    inputField.disabled = false;
-                    inputField.placeholder = "iMessage";
-                    console.log("Bot loaded");
-                } else {
-                    console.error("Bot failed to load stream");
-                }
-            } catch (e) {
-                console.error("Bot error", e);
+                const reply = await bot.reply('local-user', text);
+                addMsg(reply, 'bot');
+            } catch(e) {
+                addMsg("Error. Try again.", 'bot');
             }
+        }, 400);
+    }
 
-            function addMessage(text, sender) {
-                const msgDiv = document.createElement('div');
-                msgDiv.style.alignSelf = sender === 'bot' ? 'flex-start' : 'flex-end';
-                msgDiv.style.maxWidth = '75%';
-                msgDiv.style.marginBottom = '8px';
+    sendBtn.addEventListener('click', () => send(input.value));
+    input.addEventListener('keypress', e => { if(e.key === 'Enter') send(input.value); });
 
-                const bubble = document.createElement('div');
-                bubble.innerText = text;
-                bubble.style.padding = '10px 16px';
-                bubble.style.borderRadius = '18px';
-                bubble.style.fontSize = '16px';
-                bubble.style.lineHeight = '1.4';
-                bubble.style.wordWrap = 'break-word';
+    window.injectMsg = function(text){
+        input.value = text;
+        send(text);
+    };
+})();
+</script>
 
-                if (sender === 'bot') {
-                    bubble.style.background = '#333';
-                    bubble.style.color = '#eee';
-                    bubble.style.border = '1px solid #444';
-                } else {
-                    bubble.style.background = '#444';
-                    bubble.style.color = '#eee';
-                    bubble.style.border = '1px solid #555';
-                }
-
-                msgDiv.appendChild(bubble);
-                chatHistory.appendChild(msgDiv);
-
-                setTimeout(() => {
-                    chatHistory.scrollTop = chatHistory.scrollHeight;
-                }, 10);
-            }
-
-            function handleInput() {
-                const text = inputField.value.trim();
-                if (text === "") return;
-
-                addMessage(text, 'user');
-                inputField.value = "";
-
-                setTimeout(async () => {
-                    try {
-                        const reply = await bot.reply("local-user", text);
-                        addMessage(reply, 'bot');
-                    } catch (e) {
-                        console.error(e);
-                    }
-                }, 600);
-            }
-
-            sendBtn.addEventListener('click', handleInput);
-            inputField.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleInput();
-            });
-        });
-    </script>
 </body>
-
 </html>
